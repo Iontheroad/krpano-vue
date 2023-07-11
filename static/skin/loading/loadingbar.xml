@@ -1,0 +1,38 @@
+﻿<!--
+	a loading progress bar
+	- made only with container layer elements, no external images
+	- just include once this xml
+-->
+<krpano>
+
+	<!-- loading bar events -->
+	<events name="loadingbar" keep="true"
+	        onxmlcomplete="loadingbar_startloading();"
+	        onloadcomplete="delayedcall(0.25, loadingbar_stoploading() );"
+	        />
+
+	<!-- loading bar graphics -->
+	<layer name="loadingbar_bg" keep="true" type="container" bgcolor="0x000000" bgalpha="0.5" align="bottom" y="25%" width="33%" height="20" enabled="false" visible="false">
+		<layer name="loadingbar_space" type="container" align="left" x="4" width="-8" height="12">
+			<layer name="loadingbar_fill" type="container" bgcolor="0xFFFFFF" bgalpha="1.0" align="lefttop" width="0" height="100%" />
+		</layer>
+	</layer>
+
+	<!-- loading bar actions -->
+	<action name="loadingbar_startloading">
+		set(loadingbar_isloading, true);
+		set(layer[loadingbar_bg].visible, true);
+
+		asyncloop(loadingbar_isloading,
+			mul(pv, progress.progress, 100);
+			txtadd(pv, '%');
+			copy(layer[loadingbar_fill].width, pv);
+		  );
+	</action>
+
+	<action name="loadingbar_stoploading">
+		set(loadingbar_isloading, false);
+		set(layer[loadingbar_bg].visible, false);
+	</action>
+
+</krpano>
