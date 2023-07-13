@@ -1,12 +1,22 @@
 <template>
-  <div id="app"></div>
+  <div id="app">
+    <HelloWorld />
+  </div>
 </template>
 
 <script>
+import HelloWorld from "./components/HelloWorld.vue";
 export default {
   name: "App",
-  components: {},
+  components: { HelloWorld },
+
+  methods: {},
 };
 </script>
 
-<style></style>
+<style lang="scss">
+#app {
+  position: relative;
+  padding: 20px;
+}
+</style>

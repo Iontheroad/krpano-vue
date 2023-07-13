@@ -15,7 +15,7 @@
 		webvr="true"
 		webvr_gyro_keeplookingdirection="false"
 		webvr_prev_next_hotspots="true"
-		littleplanetintro="false"
+		littleplanetintro="true"
 		title="true"
 		thumbs="true"
 		thumbs_width="120"
@@ -100,6 +100,7 @@
 	<include url="%SWFPATH%/plugins/webvr.xml" devices="html5" />
 
 	<!-- overwrite some settings from the webvr.xml for the skin integration -->
+	<!-- 为皮肤集成覆盖webvr.xml中的一些设置 -->
 	<plugin name="WebVR" keep="true" devices="html5"
 		pluginurl="%SWFPATH%/plugins/webvr.js"
 		url=""
@@ -113,6 +114,7 @@
 	/>
 
 	<!-- webvr button style (adjust to match skin style) -->
+	<!-- Webvr按钮样式(调整以匹配皮肤样式) -->
 	<style name="webvr_button_style"
 		border="false"
 		roundedge="calc:1.0"
@@ -123,6 +125,7 @@
 	/>
 
 	<!-- show a 'rotate the device' info when the mobile device is in portrait orientation in VR mode -->
+	<!-- 在VR模式下，当移动设备处于纵向方向时，显示“旋转设备”信息 -->
 	<layer name="webvr_rotate_to_landscape_request" keep="true" vr="true" devices="mobile"
 		url="rotate_device.png" scale="0.5"
 		align="top" edge="center" y="28%"
@@ -240,9 +243,13 @@
 
 	<!-- skin_hotspotstyle - style for the hotspots -->
 	<!-- 皮肤热点风格-针对热点的风格 -->
-	<style name="skin_hotspotstyle" url="vtourskin_hotspot.png" scale="0.5" edge="top"
-		distorted="true"
-		tooltip=""
+	<style
+		name="skin_hotspotstyle"
+		url="vtourskin_hotspot.png"
+		scale="0.5"
+		edge="top"
+		zoom="false"
+		distorted="false"
 		linkedscene=""
 		linkedscene_lookat=""
 		onclick="skin_hotspotstyle_click();"
@@ -251,24 +258,64 @@
 		onloaded="if(linkedscene AND skin_settings.tooltips_hotspots, copy(tooltip,scene[get(linkedscene)].title); loadstyle(skin_tooltips); );"
 	/>
 
+	<!-- 跳转的hot -->
 	<action name="skin_hotspotstyle_click" scope="local">
 		if(caller.linkedscene,
-		copy(hs_linkedscene, caller.linkedscene);
-		if(caller.linkedscene_lookat, txtsplit(caller.linkedscene_lookat, ',', hs_lookat_h, hs_lookat_v,
-		hs_lookat_fov); );
-		set(caller.enabled, false);
-		skin_hidetooltips();
-		tween(caller.depth|caller.alpha|caller.oy|caller.rx, 4000|0.0|-50|-60, 0.5, default,
-		skin_loadscene(get(hs_linkedscene), get(skin_settings.loadscene_blend));
-		if(hs_lookat_h !== null, skin_lookat(get(hs_lookat_h), get(hs_lookat_v), get(hs_lookat_fov)); );
-		skin_updatescroll();
-		);
+			copy(hs_linkedscene, caller.linkedscene);
+			if(caller.linkedscene_lookat,
+				txtsplit(caller.linkedscene_lookat, ',', hs_lookat_h, hs_lookat_v,
+				hs_lookat_fov);
+			);
+			set(caller.enabled, false);
+			skin_hidetooltips();
+			tween(caller.depth|caller.alpha|caller.oy|caller.rx, 4000|0.0|-50|-60, 0.5, default,
+				skin_loadscene(get(hs_linkedscene), get(skin_settings.loadscene_blend));
+				if(hs_lookat_h !== null,
+					skin_lookat(get(hs_lookat_h),
+					get(hs_lookat_v),
+					get(hs_lookat_fov));
+				);
+				skin_updatescroll();
+			);
 		);
 	</action>
 
 
+	<!-- 自定义一个 marker样式 -->
+	<style
+		name="skin_markers"
+		url="vtourskin_mapspot.png"
+		scale="0.5"
+		edge="top"
+		zoom="true"
+		tooltip="我是一个自定义的marker"
+		onover.mouse="copy(layer[skin_marker].html, tooltip);
+	                     set(layer[skin_marker].visible, true);
+	                     tween(layer[skin_marker].alpha, 1.0, 0.1);
+	                     asyncloop(hovering, copy(layer[skin_marker].x,mouse.stagex); copy(layer[skin_marker].y,mouse.stagey); );"
+		onout.mouse="tween(layer[skin_marker].alpha, 0.0, 0.1, default, set(layer[skin_marker].visible,false), copy(layer[skin_marker].x,mouse.stagex); copy(layer[skin_marker].y,mouse.stagey); );"
+	/>
+	<!-- 工具提示文本框 -->
+	<layer name="skin_marker" keep="true"
+		type="text"
+		parent="STAGE"
+		visible="false" alpha="0" enabled="false" zorder="2"
+		align="lefttop" edge="bottom" oy="-2" width="200"
+		background="false" backgroundcolor="0xFFFFFF" backgroundalpha="1.0"
+		border="false" bordercolor="0x000000" borderalpha="1.0" borderwidth="1.0" roundedge="0"
+		shadow="0.0" shadowrange="4.0" shadowangle="45" shadowcolor="0x000000" shadowalpha="1.0"
+		textshadow="get:skin_settings.design_text_shadow" textshadowrange="6.0" textshadowangle="90"
+		textshadowcolor="0x000000" textshadowalpha="1.0"
+		css="calc:skin_settings.design_text_css + ' text-align:center; font-size:16px;'"
+		html=""
+	/>
+
+
+
 	<!-- skin_tooltip - style for the thumb, hotspot and mapspot tooltips -->
-	<style name="skin_tooltips"
+	<!-- Skin_tooltip -拇指，热点和地图点工具提示的样式 -->
+	<style
+		name="skin_tooltips"	
 		onover.mouse="copy(layer[skin_tooltip].html, tooltip);
 	                     set(layer[skin_tooltip].visible, true);
 	                     tween(layer[skin_tooltip].alpha, 1.0, 0.1);
@@ -480,6 +527,7 @@
 
 
 	<!-- skin events -->
+	<!-- 皮肤事件 -->
 	<events name="skin_events" keep="true"
 		onxmlcomplete="set(events[skin_events].onxmlcomplete,null); skin_startup();"
 		onnewpano="skin_showloading(true); skin_update_scene_infos(); skin_deeplinking_update_url();"
@@ -494,9 +542,11 @@
 
 
 	<!-- skin actions -->
+	<!-- 皮肤的行为 -->
 	<action name="skin_startup">
-
-		<!-- apply skin settings on startup --> if(skin_settings.thumbs, if(skin_settings.thumbs_opened,
+		<!-- apply skin settings on startup -->
+		<!-- 在启动时应用皮肤设置 -->
+		if(skin_settings.thumbs, if(skin_settings.thumbs_opened,
 		set(layer[skin_thumbs].state,'opened'); set(layer[skin_thumbs_container].visible,true); );
 		copy(layer[skin_thumbs].draggable, skin_settings.thumbs_dragging);
 		if(skin_settings.thumbs_onhoverscrolling AND device.mouse, set(layer[skin_thumbs].draggable,
@@ -511,8 +561,14 @@
 		skin_settings.maps_google_api_key); set(layer[skin_map].url, '%SWFPATH%/plugins/googlemaps.js');
 		); ); ); if(skin_settings.littleplanetintro AND (device.webgl OR device.flash),
 		skin_setup_littleplanetintro(); ); skin_addthumbs(); skin_onresize(); skin_updatescroll();
-		set(layer[skin_layer].visible, true); </action>
 
+		<!-- 隐藏control(导航条) -->
+		set(layer[skin_layer].visible, false);
+	</action>
+
+	<!-- <action name="hide_vtourskin_all" autorun="onstart"> 
+					delayedcall(0.5,skin_hideskin(instant);set(layer[skin_layer].visible,false););
+	</action> -->
 
 	<action name="skin_addthumbs">
 		if(skin_settings.thumbs == false,
@@ -600,35 +656,80 @@
 		see all spots at the same time --> zoomToSpotsExtent(); </action>
 
 
+		<!-- 小行星开场动画 -->
 	<action name="skin_setup_littleplanetintro">
+		<!--  // 将 xml.scene 的值复制给 lp_scene。 -->
+		set_hotspot_visible(false);
 		copy(lp_scene, xml.scene);
 		copy(lp_hlookat, view.hlookat);
 		copy(lp_vlookat, view.vlookat);
 		copy(lp_fov, view.fov);
 		copy(lp_fovmax, view.fovmax);
 		copy(lp_limitview, view.limitview);
+		<!-- 将 view.fovmax 设置为 170。 -->
 		set(view.fovmax, 170);
 		set(view.limitview, lookto);
 		set(view.vlookatmin, 90);
 		set(view.vlookatmax, 90);
+		<!-- 设置视角，通过计算 lp_hlookat - 180 的结果作为水平视角，固定垂直视角为 90，距离为 150。 -->
 		lookat(calc(lp_hlookat - 180), 90, 150, 1, 0, 0);
+
+		<!-- 设置在加载完成后执行的延迟动作。 -->
 		set(events[lp_events].onloadcomplete,
-		delayedcall(0.5,
-		if(lp_scene === xml.scene,
-		set(control.usercontrol, off);
-		copy(view.limitview, lp_limitview);
-		set(view.vlookatmin, null);
-		set(view.vlookatmax, null);
-		tween(view.hlookat|view.vlookat|view.fov|view.distortion, calc('' + lp_hlookat + '|' +
-		lp_vlookat + '|' + lp_fov + '|' + 0.0),
-		3.0, easeOutQuad,
-		set(control.usercontrol, all);
-		tween(view.fovmax, get(lp_fovmax));
-		);
-		);
-		);
+			delayedcall(0.5,
+				<!-- 检查 lp_scene 是否等于 xml.scene。 -->
+				if(lp_scene === xml.scene,
+					<!-- 禁用用户控制。 -->
+					set(control.usercontrol, off);
+					copy(view.limitview, lp_limitview);
+					<!-- 清空 view.vlookatmin 和 view.vlookatmax。 -->
+					set(view.vlookatmin, null);
+					set(view.vlookatmax, null);
+					<!-- 缓慢过渡（tween）到目标视角（lp_hlookat, lp_vlookat, lp_fov, 0.0）。 -->
+
+					<!-- 这段代码实现了四个属性的平滑过渡效果，即 view.hlookat、view.vlookat、view.fov 和 view.distortion。这些属性控制了场景的视角和畸变效果。
+					view.hlookat 控制水平视角。
+					view.vlookat 控制垂直视角。
+					view.fov 控制视场角度。
+					view.distortion 控制图像的畸变效果。 -->
+
+					<!-- 使用 tween 函数，可以将这些属性从当前值过渡到指定的目标值。具体参数的含义如下： -->
+					<!-- 第一个参数：过渡的目标属性列表，由竖线 | 分隔属性名。 -->
+					<!-- 第二个参数：过渡的目标值，通过 calc 函数计算得到。这里使用了字符串拼接，将 lp_hlookat、lp_vlookat、lp_fov 和固定的 0.0 值拼接为一个字符串作为目标值。 -->
+					<!-- 第三个参数：过渡的持续时间，这里设置为 3.0 秒。 -->
+					<!-- 第四个参数：过渡的缓动函数，这里使用了 easeOutQuad，表示以二次缓出的方式进行过渡。 -->
+					tween(view.hlookat|view.vlookat|view.fov|view.distortion,
+						calc('' + lp_hlookat + '|' + lp_vlookat + '|' + lp_fov + '|' + 0.0),
+						3.0,
+						easeOutQuad,
+						
+						set_hotspot_visible(true);
+						<!-- 在过渡期间启用用户控制。 -->
+						set(control.usercontrol, all);
+						<!-- 同时过渡 view.fovmax 到 lp_fovmax 的值。 -->
+						tween(view.fovmax, get(lp_fovmax));
+					);
+				);
+			);
 		);
 	</action>
+
+  <action name="set_hotspot_visible">
+    for(set(i,0),i LT hotspot.count,inc(i),
+       if(%1 == false,
+      if(hotspot[get(i)].visible == true,
+        set(hotspot[get(i)].mark,true);set(hotspot[get(i)].visible,%1);
+        );
+      ,
+      if(hotspot[get(i)].mark == true OR hotspot[get(i)].mark2 == true,
+        set(hotspot[get(i)].visible,%1);
+        );
+      );
+      
+    );
+	</action>
+
+
 
 
 	<action name="skin_lookat"> if(webvr.isenabled, <!-- adjust the VR prev/next hotspots for the view

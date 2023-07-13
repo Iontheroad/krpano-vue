@@ -1,0 +1,55 @@
+<krpano>
+<action name="skin_setup_littleplanetintro" scope="local">
+    <!-- skin_hideskin(instant); -->
+    set_hotspot_visible(false);
+    set(global.lpinfo, scene=get(xml.scene), hlookat=get(view.hlookat), vlookat=get(view.vlookat), fov=get(view.fov), fovmax=get(view.fovmax), limitview=get(view.limitview));
+
+    set(view, fovmax=170, limitview=lookto, vlookatmin=90, vlookatmax=90);
+    lookat(calc(global.lpinfo.hlookat - 180), 90, 150, 1, 0, 0);
+    set(events[lp_events].onloadcomplete,
+      delayedcall(0.5,
+        if(lpinfo.scene === xml.scene,
+          set(control.usercontrol, off);
+          set(view, limitview=get(lpinfo.limitview), vlookatmin=null, view.vlookatmax=null);
+          tween(view.hlookat|view.vlookat|view.fov|view.distortion, calc('' + lpinfo.hlookat + '|' + lpinfo.vlookat + '|' + lpinfo.fov + '|' + 0.0), 3.0, easeOutQuad);
+          delayedcall(3.0,
+            set(control.usercontrol, all);
+            <!-- skin_update_bouncinglimits_control(); -->
+            tween(view.fovmax, get(lpinfo.fovmax));
+            <!-- skin_deeplinking_update_url(); -->
+            delete(global.lpinfo);
+            set_hotspot_visible(true);
+            <!-- skin_showskin(); -->
+            if(skin_settings.thumbs AND skin_settings.thumbs_opened, skin_showthumbs() );
+          );
+          ,
+          delete(global.lpinfo);
+        );
+      );
+    );
+  </action>
+
+  
+  <events name="lp_events_" keep="true"
+    onxmlcomplete="set(events[lp_events_].onxmlcomplete,null);
+    if(device.webgl OR device.flash,
+    skin_setup_littleplanetintro();
+    ); "
+     />
+     
+  <action name="set_hotspot_visible">
+    for(set(i,0),i LT hotspot.count,inc(i),
+       if(%1 == false,
+      if(hotspot[get(i)].visible == true,
+        set(hotspot[get(i)].mark,true);set(hotspot[get(i)].visible,%1);
+        );
+      ,
+      if(hotspot[get(i)].mark == true OR hotspot[get(i)].mark2 == true,
+        set(hotspot[get(i)].visible,%1);
+        );
+      );
+      
+    );
+  </action>
+
+</krpano>
