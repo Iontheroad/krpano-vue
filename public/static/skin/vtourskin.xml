@@ -261,11 +261,14 @@
 	<!-- 跳转的hot -->
 	<action name="skin_hotspotstyle_click" scope="local">
 		if(caller.linkedscene,
+			<!-- 将caller.linkedscene的值复制给hs_linkedscene变量 -->
 			copy(hs_linkedscene, caller.linkedscene);
 			if(caller.linkedscene_lookat,
+				<!--  这是一个文本拆分操作，将caller.linkedscene_lookat的值按照逗号（,）进行拆分，并将拆分后的结果分别赋值给hs_lookat_h、hs_lookat_v和hs_lookat_fov这三个变量。 -->
 				txtsplit(caller.linkedscene_lookat, ',', hs_lookat_h, hs_lookat_v,
 				hs_lookat_fov);
 			);
+			<!-- 将caller.enabled的值设为false，即禁用caller对象 -->
 			set(caller.enabled, false);
 			skin_hidetooltips();
 			tween(caller.depth|caller.alpha|caller.oy|caller.rx, 4000|0.0|-50|-60, 0.5, default,
@@ -281,20 +284,6 @@
 	</action>
 
 
-	<!-- 自定义一个 marker样式 -->
-	<style
-		name="skin_markers"
-		url="vtourskin_mapspot.png"
-		scale="0.5"
-		edge="top"
-		zoom="true"
-		tooltip="我是一个自定义的marker"
-		onover.mouse="copy(layer[skin_marker].html, tooltip);
-	                     set(layer[skin_marker].visible, true);
-	                     tween(layer[skin_marker].alpha, 1.0, 0.1);
-	                     asyncloop(hovering, copy(layer[skin_marker].x,mouse.stagex); copy(layer[skin_marker].y,mouse.stagey); );"
-		onout.mouse="tween(layer[skin_marker].alpha, 0.0, 0.1, default, set(layer[skin_marker].visible,false), copy(layer[skin_marker].x,mouse.stagex); copy(layer[skin_marker].y,mouse.stagey); );"
-	/>
 	<!-- 工具提示文本框 -->
 	<layer name="skin_marker" keep="true"
 		type="text"
@@ -978,6 +967,7 @@
 
 
 	<!-- skin_loadscene(scenenameorindex, blendmode) -->
+	<!-- 皮肤加载场景(scenenameorindex, blendmode) -->
 	<action name="skin_loadscene">
 		if(webvr.isenabled AND scene.count GT 1,
 		set(hotspot[webvr_prev_scene].visible, false);
@@ -1161,6 +1151,7 @@
 
 
 	<!-- reload the scene when there is a special image for VR -->
+	<!-- 当有一个特殊的VR图像时重新加载场景 -->
 	<action name="skin_reloadscene_webvr">
 		delayedcall(0.1,
 		if(scene[get(xml.scene)].havevrimage,

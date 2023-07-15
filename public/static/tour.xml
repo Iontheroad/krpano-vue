@@ -136,32 +136,53 @@
 	</action>
 
 
-  <!-- 普通热点显示标题 -->
-	<style name="peak_hotspotstyle_tooltip" url="skin/vtourskin_mapspot.png" scale="0.5" edge="center" oy="-20" distorted="false" onloaded="add_all_the_time_tooltip();" />
+  <!-- line热点+显示标题 peak_type=1 -->
+	<style
+		name="peak_hotspotstyle_tooltip"
+		url="skin/hotspot/line.png"
+		scale="0.5"
+		edge="center"
+		oy="-20"
+		distorted="false"
+		onloaded="add_hotspot_tooltip();"
+	/>
+	<!-- line热点+显示标题和头像 peak_type=2 -->
+	<style
+		name="peak_hotspotstyle_tooltip_head"
+		url="skin/hotspot/line.png"
+		scale="0.5"
+		edge="center"
+		oy="-20"
+		distorted="false"
+		onloaded="add_hotspot_tooltip();add_hotspot_head();"
+	/>
 
-	<!-- 动画热点显示标题 -->
-	<style name="peak_hotspotstyle_tooltip_animation"
-			url="1000.png" scale="0.5" edge="center" oy="-20" distorted="false" onloaded="do_crop_animation(100,100,15);add_all_the_time_tooltip();" />
+	<!-- portal动画热点+显示标题 peak_type=3 -->
+	<style
+		name="peak_hotspotstyle_animation_tooltip"
+		url="skin/hotspot/portal.png"
+		scale="0.5"
+		edge="center"
+		oy="-20"
+		distorted="false"
+		onloaded="do_crop_animation(100,100,15);add_hotspot_tooltip();"
+	/>
 
-	<!-- 动画热点显示标题2 -->
-	<style name="peak_hotspotstyle_tooltip_animation_2"
-			url="1000.png" scale="0.5" edge="center" oy="-20" distorted="false" onloaded="do_crop_animation(100,100,15);add_all_the_time_tooltip();add_all_the_time_tooltip_2();" />
 
-	<!-- 显示标题 -->
-	<!-- 当样式加载完成后执行 add_all_the_time_tooltip 方法 -->
-  <action name="add_all_the_time_tooltip">
-		<!-- 使用热点的名称来构造一个新的变量"tooltipname"，它的值是以"peak_tooltip_"为前缀加上热点名称。 -->
-    txtadd(tooltipname, 'peak_tooltip_', get(name));
+
+
+	<!-- 当样式加载完成后执行 add_hotspot_tooltip 方法 -->
+	<!-- 添加热点的tooltip -->
+  <action name="add_hotspot_tooltip"  args="hotspotName,mytooltip">
+		<!-- 使用热点的名称来构造一个新的变量"tooltipname"，它的值是以"peak_hotspot_tooltip_"为前缀加上热点名称。 -->
+    txtadd(tooltipname, 'peak_hotspot_tooltip_', get(name));
 		<!-- 调用"addplugin"函数，并将"tooltipname"作为参数，以创建一个新的插件。 -->
     addplugin(get(tooltipname));
 		<!-- 将新插件的父元素设置为热点本身，以将工具提示与热点关联起来。 -->
 		txtadd(plugin[get(tooltipname)].parent, 'hotspot[',get(name),']');
 		<!-- 设置新插件的URL属性为"%SWFPATH%/plugins/textfield.swf"，指定了工具提示内容的显示方式为文本字段。 -->
     set(plugin[get(tooltipname)].url,'%SWFPATH%/plugins/textfield.swf');
-		<!-- 设置新插件的对齐方式为顶部（top） -->
-    set(plugin[get(tooltipname)].align,top);
-		<!-- 设置新插件的边缘方式为底部（bottom） -->
-		set(plugin[get(tooltipname)].edge,bottom);
+
 		<!-- 设置新插件的X和Y坐标为0，即将工具提示显示在热点的正上方 -->
     set(plugin[get(tooltipname)].x,0);
 		set(plugin[get(tooltipname)].y,0);
@@ -174,25 +195,40 @@
     set(plugin[get(tooltipname)].background,false);
 		<!-- 设置新插件的边框为false，表示没有边框 -->
 		set(plugin[get(tooltipname)].border,false);
+
 		<!-- 设置新插件的CSS样式，包括文本的对齐方式、颜色、字体和字号等 -->
-    set(plugin[get(tooltipname)].css,'text-align:center; color:#FFFFFF; font-family:Arial;  font-size:12px;background-color:rgba(0,0,0,.6);padding:4px 8px;border-radius:5px');
+		<!-- text == '' OR text === null, -->
+		if(hotspot[get(name)].peak_head,
+			<!-- 热点的head属性存在且不为空时执行 -->
+			set(plugin[get(tooltipname)].css,'text-align:center; color:#FFFFFF; font-family:Arial;  font-size:12px;background-color:rgba(0,0,0,.6);padding:5px 8px 5px 28px;border-radius:17px;  transform:translate(0px,-28px)');
+			,
+			<!-- 热点的head属性不存在或者为空时执行 -->
+			set(plugin[get(tooltipname)].css,'text-align:center; color:#FFFFFF; font-family:Arial;  font-size:12px;background-color:rgba(0,0,0,.6);padding:5px 8px;border-radius:8px');
+			<!-- 设置新插件的对齐方式为顶部（top）-->
+			set(plugin[get(tooltipname)].align,top);
+			<!-- 设置新插件的边缘方式为底部（bottom）-->
+			set(plugin[get(tooltipname)].edge,bottom);
+		);
+
 		<!-- 设置新插件的文本阴影效果，包括阴影的偏移量、范围和角度 -->
     set(plugin[get(tooltipname)].textshadow,1);
 		set(plugin[get(tooltipname)].textshadowrange,6.0);
 		set(plugin[get(tooltipname)].textshadowangle,90);
 		<!-- 将热点的工具提示内容复制到新插件的HTML属性中 -->
-    copy(plugin[get(tooltipname)].html,hotspot[get(name)].tooltip);
+    copy(plugin[get(tooltipname)].html,hotspot[get(name)].peak_tooltip);
 		<!-- 禁用新插件，使工具提示一开始不可见 -->
     set(plugin[get(tooltipname)].enabled,false);
   </action>
 
-  <action name="add_all_the_time_tooltip_2">
-		<!-- 使用热点的名称来构造一个新的变量"tooltipname"，它的值是以"peak_tooltip_"为前缀加上热点名称。 -->
-    txtadd(tooltipname, 'peak_tooltip2_', get(name));
+
+	<!-- 添加热点的头像 -->
+  <action name="add_hotspot_head" >
+		<!-- 使用热点的名称来构造一个新的变量"tooltipname"，它的值是以"peak_hotspot_head_"为前缀加上热点名称。 -->
+    txtadd(tooltipname, 'peak_hotspot_head_', get(name));
 		<!-- 调用"addplugin"函数，并将"tooltipname"作为参数，以创建一个新的插件。 -->
     addplugin(get(tooltipname));
 		<!-- 将新插件的父元素设置为热点本身，以将工具提示与热点关联起来。 -->
-		txtadd(plugin[get(tooltipname)].parent, 'hotspot[',get(name),']');
+		txtadd(plugin[get(tooltipname)].parent, 'hotspot[', get(name),']');
 		<!-- 设置新插件的URL属性为"%SWFPATH%/plugins/textfield.swf"，指定了工具提示内容的显示方式为文本字段。 -->
     set(plugin[get(tooltipname)].url,'%SWFPATH%/plugins/textfield.swf');
 		<!-- 设置新插件的对齐方式为顶部（top） -->
@@ -201,26 +237,30 @@
 		set(plugin[get(tooltipname)].edge,bottom);
 		<!-- 设置新插件的X和Y坐标为0，即将工具提示显示在热点的正上方 -->
     set(plugin[get(tooltipname)].x,0);
-		set(plugin[get(tooltipname)].y,50);
+		set(plugin[get(tooltipname)].y,2);
     <!-- 设置新插件的宽度为200像素 -->
-		<!-- set(plugin[get(tooltipname)].width,200); -->
-		set(plugin[get(tooltipname)].autowidth,true);
+		set(plugin[get(tooltipname)].width,32);
+		<!-- set(plugin[get(tooltipname)].autowidth,true); -->
 		<!-- 设置新插件的自动高度为true，使其根据内容自动调整高度 -->
-		set(plugin[get(tooltipname)].autoheight,true);
+		set(plugin[get(tooltipname)].height,32);
+		<!-- set(plugin[get(tooltipname)].autoheight,true); -->
 		<!-- 设置新插件的背景为false，表示没有背景颜色或背景图像 -->
     set(plugin[get(tooltipname)].background,false);
 		<!-- 设置新插件的边框为false，表示没有边框 -->
 		set(plugin[get(tooltipname)].border,false);
+		set(plugin[get(tooltipname)].cssclass,'round-image');
+
+		<!-- 获取热点head属性的值设置给 创建的bgurl变量 -->
+		set(bgurl, get(hotspot[ get(name)].peak_head));
+		<!-- 设置改插件的内容,也就是图片 -->
+    <!-- set(plugin[get(tooltipname)].url, get(bgurl)); -->
+
 		<!-- 设置新插件的CSS样式，包括文本的对齐方式、颜色、字体和字号等 -->
-    set(plugin[get(tooltipname)].css,'text-align:center; color:#FFFFFF; font-family:Arial;  font-size:12px;background-color:rgba(0,0,0,.6);padding:4px 8px;border-radius:5px');
-		<!-- 设置新插件的文本阴影效果，包括阴影的偏移量、范围和角度 -->
-    set(plugin[get(tooltipname)].textshadow,1);
-		set(plugin[get(tooltipname)].textshadowrange,6.0);
-		set(plugin[get(tooltipname)].textshadowangle,90);
-		<!-- 将热点的工具提示内容复制到新插件的HTML属性中 -->
-    copy(plugin[get(tooltipname)].html,hotspot[get(name)].text);
+		txtadd(mycss,'width:32px;height:32px;background-color:#ffffff;border-radius:50%;background-image:url(', get(bgurl) ,');background-size:100% 100%;margin:0px');
+    set(plugin[get(tooltipname)].css, get(mycss));
+
 		<!-- 禁用新插件，使工具提示一开始不可见 -->
-    set(plugin[get(tooltipname)].enabled,false);
+    <!-- set(plugin[get(tooltipname)].enabled,false); -->
   </action>
 
 	<!--
@@ -237,6 +277,7 @@
 	<!-- 动画热点 -->
 	<action name="do_crop_animation" scope="local" args="framewidth, frameheight, framerate">
 		<!-- define local variables -->
+		<!-- 定义局部变量 -->
 		calc(local.xframes, (caller.imagewidth /framewidth) BOR 0);
 		calc(local.frames, xframes * ((caller.imageheight / frameheight) BOR 0));
 		def(local.frame, integer, 0);
@@ -263,7 +304,26 @@
 	</action>
 
 
-	<!-- 创建一个新的热点作为其他热点的text -->
+
+	<action name="qweqwe_aa"  >
+		js(myGetXML(%1));
+	</action>
+	<action name="qweqwe_bb" scope="local" args="myb">
+		js(console.log("接收到了",get(myb)))
+	</action>
+
+
+<action name="peak_click_to_scene">
+	if(%4==true,
+		looktohotspot(%1,65);,
+	);
+	loadscene(%2, null, MERGE, %3);
+</action>
+
+
+
+
+	<!-- 创建一个新的热点作为其他热点的text (暂时未用到) -->
 	<action name="add_all_the_time_tooltip_text">
 		<!-- 这一行将变量'tooltipname'设置为字符串'tooltip_'加上变量'name'的值。它用于创建一个唯一的标识符来标识工具提示。 -->
     txtadd(tooltipname, 'tooltip_', get(name));
@@ -354,8 +414,9 @@
 
 	<!-- 场景 -->
 	<!-- 存储场景代码块，被 loadscene 的场景代码块将被解析 -->
-	<scene name="scene_10017" title="篮球场"
-		onstart="defaultsnow();"
+	<scene name="scene_1" title="篮球场"
+		id="1"
+		onstart="qweqwe_aa(我是场景1);"
 		thumburl="panos/10017.tiles/thumb.jpg"
 		lat="34.71274167" lng="113.51524722" heading="268.1">
 
@@ -374,45 +435,76 @@
 			<cube url="panos/10017.tiles/pano_%s.jpg" />
 		</image>
 
-		<!-- 设置热点 -->
+		<!-- 可拖拽热点 -->
 		<hotspot
 			name="spot1546933175342"
 			ath="-79.03260129263748"
 			atv="11.32974335214361"
-			linkedscene="scene_10034"
+			linkedscene="scene_2"
 			style="skin_hotspotstyle"
-			dive="true"
+			ondown="draghotspot();"
 		/>
 
 
-		<!-- 一直显示标题的热点 -->
- 		<hotspot name="peak_tooltip_1" style="peak_hotspotstyle_tooltip" ath="-30.441" atv="14.181" tooltip="您好啊!"/>
-		<hotspot name="peak_tooltip_2" style="peak_hotspotstyle_tooltip" ath="-48.224" atv="12.630" tooltip="您好"/> 
 
-		<!-- 动画热点 -->
-		<hotspot name="spot5" url="target.png" onloaded="do_crop_animation(128,128, 60);" ath="+15" atv="-12" onclick="looktohotspot(get(name),65);" scale="0.40" zoom="true" />
-
+		<!-- <hotspot
+			name="peak_hotspot_1"
+			style="peak_hotspotstyle_animation_tooltip"
+			ath="-136"
+			atv="11"
+			peak_tooltip="我是动态箭头1跳转的热点"
+		/>
 
 		<hotspot
-			name="peak_tooltip_3"
-			style="peak_hotspotstyle_tooltip_animation"
-			url="1000.png"
-			atv="+12"
-			ath="+15"
+			name="peak_hotspot_2"
+			style="peak_hotspotstyle_animation_tooltip"
+			url="skin/hotspot/circle.png"
+			ath="-124"
+			atv="-10"
+			peak_tooltip="我是动态圆圈跳转的热点"
+		/> -->
+
+
+		<!-- 纵向动画热点 -->
+		<!-- <hotspot
+			name="spot5"
+			url="skin/hotspot/target.png"
+			ath="-139"
+			atv="9"
 			scale="0.5"
-			tooltip="撒浪嘿呦"
+			zoom="true"
+			onloaded="do_crop_animation(128,128, 60);"
 			onclick="looktohotspot(get(name),65);"
-		/>
+		/> -->
 
 
-		<hotspot
-			name="area2"
-			style="peak_hotspotstyle_tooltip_animation_2"
+
+		<!-- <hotspot
+			name="peak_hotspot_3"
 			ath="-91"
-			atv="25"
-			tooltip="撒浪嘿呦2"
-			text="我是第二个"
-		/>
+			atv="9"
+			scale="0.5"
+			edge="center"
+			oy="-20"
+			url="skin/hotspot/line.png"
+			peak_tooltip="我是一个普通的热点标识(有头像)"
+			peak_head="https://resource.v123.cn/v/Data/upload/live/auth/656/image/5c38805344125.jpg"
+			onloaded="add_hotspot_tooltip();add_hotspot_head();"
+		/> -->
+			<!-- style="peak_hotspotstyle_tooltip_head" -->
+
+		<!-- <hotspot
+			name="peak_hotspot_3"
+			style="peak_hotspotstyle_tooltip_head"
+			ath="-91"
+			atv="9"
+			peak_tooltip="我是一个普通的热点标识(有头像)"
+			peak_head="https://resource.v123.cn/v/Data/upload/live/auth/656/image/5c38805344125.jpg"
+		/> -->
+
+ 		<!-- <hotspot name="peak_hotspot_4" style="peak_hotspotstyle_tooltip" ath="-74" atv="20" peak_tooltip="您好啊!"/> -->
+
+
 
 		<!-- <hotspot
 			name="area2"
@@ -420,9 +512,9 @@
 			atv="25"
 			text="我是一个可以拖拽的的marker"
 			url="skin/vtourskin_mapspot.png"
-			onloaded="add_all_the_time_tooltip_text"
 			ondown="draghotspot();"
 		/> -->
+
 
 
 		<plugin name="hotspot_pos_info"
@@ -435,12 +527,12 @@
 			height="100"
 			enabled="true"
 		/>
-
 	</scene>
 
-	<scene name="scene_10034"
-		title="10034" onstart="" thumburl="panos/10034.tiles/thumb.jpg"
-		lat="34.71205833" lng="113.51638611" heading="294.2">
+	<scene name="scene_2"
+		id="2"
+		title="10034" onstart="qweqwe_aa(我是场景2);" thumburl="panos/10034.tiles/thumb.jpg"
+		lat="34.71205833" lng="113.51638611" heading="294.2" >
 
 		<view hlookat="294.2" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70"
 			fovmax="140" limitview="auto" />
@@ -451,6 +543,25 @@
 			<cube url="panos/10034.tiles/pano_%s.jpg" />
 		</image>
 
+		<!-- 可拖拽热点 -->
+		<hotspot
+			name="spot1546933175342"
+			ath="-79.03260129263748"
+			atv="11.32974335214361"
+			linkedscene="scene_1"
+			style="skin_hotspotstyle"
+			ondown="draghotspot();"
+		/>
+		<plugin name="hotspot_pos_info"
+			type="text"
+			html="drag the hotspots..."
+			css="font-family:Courier;font-size: 16px;"
+			padding="8"
+			align="lefttop" x="10" y="10"
+			width="300"
+			height="100"
+			enabled="true"
+		/>
 	</scene>
 
 
