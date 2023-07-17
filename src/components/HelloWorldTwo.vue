@@ -1,40 +1,49 @@
 <template>
+  <!-- 
+  <button @click="removeHotsport">移除所有热点</button>
+  <button @click="loadXmlString">加载xml字符串</button>
+  <button @click="loadPano">加载全景</button>
+  <button @click="setRandomView">设置随机视图</button>
+  <button @click="lookToRandomView">动画查看随机视图</button>
+  <button @click="trackMouse">跟踪鼠标位置</button>
+  <span>{{ trackMouseValue ?? "" }}</span> -->
+
   <div class="container">
-    <!-- <div class="action">
+    <div class="action">
       <button @click="preview">预览</button>
       <button @click="krpanoControl(false)">隐藏control</button>
       <button @click="krpanoControl(true)">显示control</button>
       <button @click="getCurrentView">获取当前视图</button>
+      <!-- <button @click="setRandomView">设置随机视图</button> -->
+      <!-- <button @click="lookToRandomView">动画查看随机视图</button> -->
       <button @click="getMouseLocation">获取点击位置</button>
       <button @click="transmitXML('来至vue的点击传参')">传递xml</button>
-    </div> -->
-
-    <!-- 场景导航 -->
-    <NavList
-      v-if="krpano"
-      :krpano="krpano"
-      :currentSceneId="currentSceneId"
-      @goToScene="goToScene"
-    />
-    <!-- 工具 -->
-    <Tools :krpano="krpano" />
-
-    <!-- 场景视图 -->
-    <div id="pano" @dblclick="dblclickScene"></div>
+    </div>
+    <div class="scene-select-box">
+      <ul>
+        <li
+          v-for="scene in sceneList"
+          :key="scene.thumburl"
+          :class="{
+            'hotspot-detail-scene-selected': currentSceneId == scene.id,
+          }"
+        >
+          <img :src="scene.thumburl" @click="clickToggleScene(scene)" />
+          <div>
+            <span>{{ scene.name.split(/_/)[1] }}</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div id="pano"></div>
   </div>
 </template>
 <script>
-import NavList from "./NavList.vue";
-import Tools from "./Tools.vue";
 export default {
-  name: "HelloWorld",
-  components: {
-    NavList,
-    Tools,
-  },
   data() {
     return {
       krpano: null,
+      sceneList: [], // 场景集合
       currentSceneId: 1, // 当前场景的索引
       trackMouseId: null,
       goToHotspotList: [
@@ -145,10 +154,7 @@ export default {
       passQueryParameters: true, // 是否接受 URL 传参，例如：tour.html?html5=only&startscene=scene2
       onready: (krpano_interface) => {
         this.krpano = krpano_interface;
-
-        setTimeout(() => {
-          this.init();
-        }, 500);
+        this.init();
       },
       onerror: (error) => {
         console.log(error);
@@ -164,17 +170,21 @@ export default {
       // this.krpano.call(`qweqwe_bb(${name})`);
     },
 
-    /**
-     * 初始化数据
-     */
     init() {
-      let currentSceneName = this.krpano.get("xml.scene"); // 当前场景图名称
-      this.currentSceneId = this.krpano
-        .get("scene")
-        .getItem(currentSceneName).id;
+      // 获取场景
+      // this.krpano.get("xml.scene") // 获取当前的场景名
+      // this.krpano.get("scene").getItem(this.krpano.get("xml.scene")) // 获取该场景
+      this.sceneList = this.krpano.get("scene").getArray(); // 所有场景图
 
-      // 获取该场景图下的热点
-      this.getSceneHotspot(this.currentSceneId);
+      setTimeout(() => {
+        let currentSceneName = this.krpano.get("xml.scene"); // 当前场景图名称
+        this.currentSceneId = this.krpano
+          .get("scene")
+          .getItem(currentSceneName).id;
+
+        // 获取该场景图下的热点
+        this.getSceneHotspot(this.currentSceneId);
+      }, 500);
     },
 
     /**
@@ -205,6 +215,20 @@ export default {
     },
 
     /**
+     * 点击切换场景
+     */
+    clickToggleScene(scene) {
+      // console.log(scene);
+      // 点击的还是当前场景拦截
+      // this.krpano.get("xml.scene") // 获取当前的场景名
+      if (this.currentSceneId === scene.id) return;
+      this.goToScene({
+        peak_to_scene: scene.name,
+        peak_to_sceneId: scene.id,
+      });
+    },
+
+    /**
      * 点击热点
      */
     clickHotspot(hotspotInfo) {
@@ -213,7 +237,7 @@ export default {
         alert("我是普通的热点");
       } else if (hotspotInfo.peak_type == 3) {
         // 跳转热点
-        // console.log(hotspotInfo);
+        console.log(hotspotInfo);
         this.goToScene({
           hotspotName: hotspotInfo.name,
           peak_to_scene: hotspotInfo.peak_to_scene,
@@ -410,13 +434,6 @@ export default {
     },
 
     /**
-     * 双击视图
-     */
-    dblclickScene() {
-      console.log(this.getMouseLocation());
-    },
-
-    /**
      * 获取点击的坐标
      */
     getMouseLocation() {
@@ -443,12 +460,23 @@ export default {
 </script>
 <style scoped lang="scss">
 .container {
-  position: relative;
   width: 100%;
-  height: 100%;
 }
 #pano {
-  width: 100%;
-  height: 100%;
+  height: 600px;
+}
+.scene-select-box {
+  ul {
+    display: flex;
+    li {
+      img {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  }
+  .hotspot-detail-scene-selected {
+    border: solid #409eff 2px;
+  }
 }
 </style>

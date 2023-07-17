@@ -23,7 +23,7 @@
 		webvr="true"
 		webvr_gyro_keeplookingdirection="false"
 		webvr_prev_next_hotspots="true"
-		littleplanetintro="false"
+		littleplanetintro="true"
 		title="true"
 		thumbs="true"
 		thumbs_width="120"
@@ -239,16 +239,16 @@
     set(plugin[get(tooltipname)].x,0);
 		set(plugin[get(tooltipname)].y,2);
     <!-- 设置新插件的宽度为200像素 -->
-		set(plugin[get(tooltipname)].width,32);
-		<!-- set(plugin[get(tooltipname)].autowidth,true); -->
+		<!-- set(plugin[get(tooltipname)].width,32); -->
+		set(plugin[get(tooltipname)].autowidth,true);
 		<!-- 设置新插件的自动高度为true，使其根据内容自动调整高度 -->
-		set(plugin[get(tooltipname)].height,32);
-		<!-- set(plugin[get(tooltipname)].autoheight,true); -->
+		<!-- set(plugin[get(tooltipname)].height,32); -->
+		set(plugin[get(tooltipname)].autoheight,true);
 		<!-- 设置新插件的背景为false，表示没有背景颜色或背景图像 -->
     set(plugin[get(tooltipname)].background,false);
 		<!-- 设置新插件的边框为false，表示没有边框 -->
 		set(plugin[get(tooltipname)].border,false);
-		set(plugin[get(tooltipname)].cssclass,'round-image');
+		<!-- set(plugin[get(tooltipname)].cssclass,'round-image'); -->
 
 		<!-- 获取热点head属性的值设置给 创建的bgurl变量 -->
 		set(bgurl, get(hotspot[ get(name)].peak_head));
@@ -256,7 +256,7 @@
     <!-- set(plugin[get(tooltipname)].url, get(bgurl)); -->
 
 		<!-- 设置新插件的CSS样式，包括文本的对齐方式、颜色、字体和字号等 -->
-		txtadd(mycss,'width:32px;height:32px;background-color:#ffffff;border-radius:50%;background-image:url(', get(bgurl) ,');background-size:100% 100%;margin:0px');
+		txtadd(mycss,'width:32px;height:32px;background-color:#ffffff;border-radius:50%;background-image:url(', get(bgurl) ,');background-size:100% 100%;margin:0px;cursor:default;');
     set(plugin[get(tooltipname)].css, get(mycss));
 
 		<!-- 禁用新插件，使工具提示一开始不可见 -->
@@ -312,13 +312,14 @@
 		js(console.log("接收到了",get(myb)))
 	</action>
 
-
-<action name="peak_click_to_scene">
-	if(%4==true,
-		looktohotspot(%1,65);,
-	);
-	loadscene(%2, null, MERGE, %3);
-</action>
+	<!-- 切换视图方法 -->
+	<action name="peak_click_to_scene" scope="local" args="peak_to_scene, blend, hotspot_name">
+		<!-- 判断热点名有没有传递 -->
+		if(get(hotspot_name),
+			looktohotspot(get(hotspot_name),65);,
+		);
+		loadscene(get(peak_to_scene), null, MERGE, get(blend));
+	</action>
 
 
 
@@ -411,39 +412,76 @@
   </action>
 
 
+	<!-- 音频事件  -->
+	<action name="peak_audio">
+	js(console.log(%1));
+		if(%1,
+			playsound(bgsnd, 'https://krpano.com/panos/xmas/ding_dong_merrily_on_high.mp3|https://krpano.com/panos/xmas/ding_dong_merrily_on_high.ogg', 0);,
+			<!-- 停止 -->
+			<!-- stopsound(bgsnd); -->
+			<!-- 暂停 -->
+			pausesound(bgsnd);
+		)
+		
+	</action>
+
+
 
 	<!-- 场景 -->
 	<!-- 存储场景代码块，被 loadscene 的场景代码块将被解析 -->
 	<scene name="scene_1" title="篮球场"
-		id="1"
-		onstart="qweqwe_aa(我是场景1);"
-		thumburl="panos/10017.tiles/thumb.jpg"
-		lat="34.71274167" lng="113.51524722" heading="268.1">
+		id="1" havevrimage="true" thumburl="panos/10017.tiles/thumb.jpg"  lat="" lng="" heading="" >
 
 
-		<!-- 视野设置 -->
-		<view hlookat="268.1" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70"
-			fovmax="140" limitview="auto" />
+		<!-- 初始观看角度 -->
+			<!-- hlookat="268.1" -->
+		<view
+			hlookat="0"
+			vlookat="0.0"
+			fovtype="MFOV"
+			fov="120"
+			fovmin="70"
+			fovmax="140"
+			maxpixelzoom="2.0"
+			limitview="auto"
+		/>
+		<!-- <view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="140" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" /> -->
 
 		<!-- 预览图设置 -->
 		<!--  preview就是进入场景的时候需要先展示那个图片,preview.jpg是自动生成的 -->
 		<preview url="panos/10017.tiles/preview.jpg" />
-
 		<!-- // image就是加载所有的场景图,至于里面的Cube是什么可以在文档中搜索查看 -->
 		<!-- 全景图设置 -->
 		<image prealign="0|268.1|0">
 			<cube url="panos/10017.tiles/pano_%s.jpg" />
 		</image>
 
-		<!-- 可拖拽热点 -->
-		<hotspot
-			name="spot1546933175342"
-			ath="-79.03260129263748"
-			atv="11.32974335214361"
-			linkedscene="scene_2"
-			style="skin_hotspotstyle"
-			ondown="draghotspot();"
+		<!-- 加载声音插件 -->
+			<!-- <plugin name="soundinterface"
+	        url="plugins/soundinterface.js"
+	        rootpath=""
+	        preload="true"
+	        keep="true"
+	        /> -->
+			<!-- 加载声音插件 -->
+		<plugin name="soundinterface"
+	        url.flash="%SWFPATH%/plugins/soundinterface.swf"
+	        url.html5="%SWFPATH%/plugins/soundinterface.js"
+	        rootpath=""
+	        preload="true"
+	        keep="true"
 		/>
+		<!-- 开始播放音乐 -->
+		<!-- <events name="currentpano"
+						onloadcomplete="playsound(bgsnd, 'https://krpano.com/panos/xmas/ding_dong_merrily_on_high.mp3|https://krpano.com/panos/xmas/ding_dong_merrily_on_high.ogg',, 0);"
+						onremovepano="stopsound(bgsnd);"
+		/> -->
+
+		<!-- 加入一个按钮，控制音乐播放暂停 -->
+			<!-- <layer name="snd" url="skin/tools/soundonoff.png" align="leftbottom" x="10" y="10" alpha="0.25" scale="0.5" onover="tween(alpha,1);" onout="tween(alpha,0.25);"
+	       crop="0|0|50|50"
+	       onclick="pausesoundtoggle(bgsnd); switch(crop, 0|0|50|50, 0|50|50|50);"
+	  /> -->
 
 
 
@@ -474,7 +512,7 @@
 			scale="0.5"
 			zoom="true"
 			onloaded="do_crop_animation(128,128, 60);"
-			onclick="looktohotspot(get(name),65);"
+			onclick="looktohotspot(get(name),100);"
 		/> -->
 
 
@@ -516,7 +554,15 @@
 		/> -->
 
 
-
+		<!-- 可拖拽热点 -->
+		<!-- <hotspot
+			name="spot1546933175342"
+			ath="0"
+			atv="0"
+			linkedscene="scene_2"
+			style="skin_hotspotstyle"
+			ondown="draghotspot();"
+		/>
 		<plugin name="hotspot_pos_info"
 			type="text"
 			html="drag the hotspots..."
@@ -526,12 +572,12 @@
 			width="300"
 			height="100"
 			enabled="true"
-		/>
+		/> -->
 	</scene>
 
 	<scene name="scene_2"
 		id="2"
-		title="10034" onstart="qweqwe_aa(我是场景2);" thumburl="panos/10034.tiles/thumb.jpg"
+		title="神秘大楼" onstart="qweqwe_aa(我是场景2);" thumburl="panos/10034.tiles/thumb.jpg"
 		lat="34.71205833" lng="113.51638611" heading="294.2" >
 
 		<view hlookat="294.2" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70"
@@ -544,7 +590,7 @@
 		</image>
 
 		<!-- 可拖拽热点 -->
-		<hotspot
+		<!-- <hotspot
 			name="spot1546933175342"
 			ath="-79.03260129263748"
 			atv="11.32974335214361"
@@ -561,7 +607,7 @@
 			width="300"
 			height="100"
 			enabled="true"
-		/>
+		/> -->
 	</scene>
 
 

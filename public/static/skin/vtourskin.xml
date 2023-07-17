@@ -15,7 +15,7 @@
 		webvr="true"
 		webvr_gyro_keeplookingdirection="false"
 		webvr_prev_next_hotspots="true"
-		littleplanetintro="true"
+		littleplanetintro="false"
 		title="true"
 		thumbs="true"
 		thumbs_width="120"
@@ -535,27 +535,50 @@
 	<action name="skin_startup">
 		<!-- apply skin settings on startup -->
 		<!-- 在启动时应用皮肤设置 -->
-		if(skin_settings.thumbs, if(skin_settings.thumbs_opened,
-		set(layer[skin_thumbs].state,'opened'); set(layer[skin_thumbs_container].visible,true); );
-		copy(layer[skin_thumbs].draggable, skin_settings.thumbs_dragging);
-		if(skin_settings.thumbs_onhoverscrolling AND device.mouse, set(layer[skin_thumbs].draggable,
-		false); set(layer[skin_thumbs].onhover_autoscrolling, true); ); ); if(skin_settings.gyro AND
-		!device.desktop AND device.html5, copy(plugin[skin_gyro].url, plugin[skin_gyro].html5_url); );
-		if(skin_settings.webvr AND device.html5 AND device.webgl, copy(plugin[WebVR].url,
-		plugin[WebVR].pluginurl); ); if(skin_settings.maps == true, set(layer[skin_btn_map].visible,
-		true); if(device.flash, copy(layer[skin_map].key, skin_settings.maps_bing_api_key);
-		set(layer[skin_map].url, '%SWFPATH%/plugins/bingmaps.swf'); , if(skin_settings.maps_type ==
-		'bing', copy(layer[skin_map].key, skin_settings.maps_bing_api_key); set(layer[skin_map].url,
-		'%SWFPATH%/plugins/bingmaps.js'); , copy(layer[skin_map].key,
-		skin_settings.maps_google_api_key); set(layer[skin_map].url, '%SWFPATH%/plugins/googlemaps.js');
-		); ); ); if(skin_settings.littleplanetintro AND (device.webgl OR device.flash),
-		skin_setup_littleplanetintro(); ); skin_addthumbs(); skin_onresize(); skin_updatescroll();
+		if(skin_settings.thumbs,
+			if(skin_settings.thumbs_opened,
+				set(layer[skin_thumbs].state,'opened');
+				set(layer[skin_thumbs_container].visible,true);
+			);
+			copy(layer[skin_thumbs].draggable, skin_settings.thumbs_dragging);
+			if(skin_settings.thumbs_onhoverscrolling AND device.mouse,
+				set(layer[skin_thumbs].draggable,false);
+				set(layer[skin_thumbs].onhover_autoscrolling, true);
+			);
+		);
+		if(skin_settings.gyro AND !device.desktop AND device.html5,
+			copy(plugin[skin_gyro].url, plugin[skin_gyro].html5_url);
+		);
+		if(skin_settings.webvr AND device.html5 AND device.webgl,
+			copy(plugin[WebVR].url,plugin[WebVR].pluginurl);
+		);
+		if(skin_settings.maps == true,
+			set(layer[skin_btn_map].visible,true);
+			if(device.flash,
+				copy(layer[skin_map].key, skin_settings.maps_bing_api_key);
+				set(layer[skin_map].url, '%SWFPATH%/plugins/bingmaps.swf');
+				,
+				if(skin_settings.maps_type == 'bing',
+					copy(layer[skin_map].key,skin_settings.maps_bing_api_key);
+					set(layer[skin_map].url,'%SWFPATH%/plugins/bingmaps.js');
+					,
+					copy(layer[skin_map].key,skin_settings.maps_google_api_key);
+					set(layer[skin_map].url, '%SWFPATH%/plugins/googlemaps.js');
+				);
+			);
+		);
+		if(skin_settings.littleplanetintro AND (device.webgl OR device.flash),
+			skin_setup_littleplanetintro();
+		);
+		skin_addthumbs();
+		skin_onresize();
+		skin_updatescroll();
 
 		<!-- 隐藏control(导航条) -->
 		set(layer[skin_layer].visible, false);
 	</action>
 
-	<!-- <action name="hide_vtourskin_all" autorun="onstart"> 
+	<!-- <action name="hide_vtourskin_all" autorun="onstart">
 					delayedcall(0.5,skin_hideskin(instant);set(layer[skin_layer].visible,false););
 	</action> -->
 
@@ -629,7 +652,8 @@
 	</action>
 
 
-	<action name="skin_addmapspots"> for(set(i,0), i LT scene.count, inc(i), if(scene[get(i)].lat,
+	<action name="skin_addmapspots">
+		for(set(i,0), i LT scene.count, inc(i), if(scene[get(i)].lat,
 		txtadd(spotname, 'spot', get(i)); txtadd(spotclickevent, 'skin_hidetooltips();
 		activatespot(',get(spotname),'); skin_loadscene(', get(scene[get(i)].name),
 		',get(skin_settings.loadscene_blend)); skin_updatescroll();
@@ -642,60 +666,53 @@
 		txtadd(layer[skin_map].spot[get(spotname)].onout, 'set(hovering,false);',
 		get(style[skin_tooltips].onout) ); ); ); ); if(xml.scene != null, activatespot(
 		get(scene[get(xml.scene)].mapspotname) ); , activatespot(spot0); ); <!-- zoom and pan the map to
-		see all spots at the same time --> zoomToSpotsExtent(); </action>
+		see all spots at the same time --> zoomToSpotsExtent();
+	</action>
 
 
-		<!-- 小行星开场动画 -->
+	<!-- 小行星开场动画 -->
 	<action name="skin_setup_littleplanetintro">
-		<!--  // 将 xml.scene 的值复制给 lp_scene。 -->
-		set_hotspot_visible(false);
+		<!-- 将热点隐藏 -->
+		<!-- set_hotspot_visible(false); -->
+		<!-- 将xml.scene的值复制给lp_scene -->
 		copy(lp_scene, xml.scene);
+		<!-- 将view.hlookat的值复制给lp_hlookat -->
 		copy(lp_hlookat, view.hlookat);
 		copy(lp_vlookat, view.vlookat);
 		copy(lp_fov, view.fov);
 		copy(lp_fovmax, view.fovmax);
 		copy(lp_limitview, view.limitview);
-		<!-- 将 view.fovmax 设置为 170。 -->
+
+		<!-- 将view.fovmax设置为170 -->
 		set(view.fovmax, 170);
+		<!-- 将view.limitview设置为lookto -->
 		set(view.limitview, lookto);
+		<!-- set(view.vlookatmin, 90); - 将view.vlookatmin设置为90 -->
 		set(view.vlookatmin, 90);
+		<!-- set(view.vlookatmax, 90); - 将view.vlookatmax设置为90 -->
 		set(view.vlookatmax, 90);
-		<!-- 设置视角，通过计算 lp_hlookat - 180 的结果作为水平视角，固定垂直视角为 90，距离为 150。 -->
+		js(console.log(get(lp_hlookat),get(lp_vlookat),get(lp_fov)));
+
+		<!-- 将视角定位到(lp_hlookat - 180, 90, 150)的位置 -->
 		lookat(calc(lp_hlookat - 180), 90, 150, 1, 0, 0);
 
-		<!-- 设置在加载完成后执行的延迟动作。 -->
+		<!-- 当场景加载完成后延迟0.5秒执行以下操作： -->
 		set(events[lp_events].onloadcomplete,
 			delayedcall(0.5,
-				<!-- 检查 lp_scene 是否等于 xml.scene。 -->
+				<!-- 如果lp_scene等于xml.scene，则执行以下操作: -->
 				if(lp_scene === xml.scene,
-					<!-- 禁用用户控制。 -->
 					set(control.usercontrol, off);
 					copy(view.limitview, lp_limitview);
-					<!-- 清空 view.vlookatmin 和 view.vlookatmax。 -->
 					set(view.vlookatmin, null);
 					set(view.vlookatmax, null);
-					<!-- 缓慢过渡（tween）到目标视角（lp_hlookat, lp_vlookat, lp_fov, 0.0）。 -->
 
-					<!-- 这段代码实现了四个属性的平滑过渡效果，即 view.hlookat、view.vlookat、view.fov 和 view.distortion。这些属性控制了场景的视角和畸变效果。
-					view.hlookat 控制水平视角。
-					view.vlookat 控制垂直视角。
-					view.fov 控制视场角度。
-					view.distortion 控制图像的畸变效果。 -->
-
-					<!-- 使用 tween 函数，可以将这些属性从当前值过渡到指定的目标值。具体参数的含义如下： -->
-					<!-- 第一个参数：过渡的目标属性列表，由竖线 | 分隔属性名。 -->
-					<!-- 第二个参数：过渡的目标值，通过 calc 函数计算得到。这里使用了字符串拼接，将 lp_hlookat、lp_vlookat、lp_fov 和固定的 0.0 值拼接为一个字符串作为目标值。 -->
-					<!-- 第三个参数：过渡的持续时间，这里设置为 3.0 秒。 -->
-					<!-- 第四个参数：过渡的缓动函数，这里使用了 easeOutQuad，表示以二次缓出的方式进行过渡。 -->
+					<!-- 使用动画过渡，将view.hlookat、view.vlookat、view.fov和view.distortion的值从(lp_hlookat, lp_vlookat, lp_fov, 0.0)变化到(lp_hlookat, lp_vlookat, lp_fov, 0.0)，过渡时间为3秒，过渡函数为easeOutQuad -->
 					tween(view.hlookat|view.vlookat|view.fov|view.distortion,
-						calc('' + lp_hlookat + '|' + lp_vlookat + '|' + lp_fov + '|' + 0.0),
+						calc('' + 0 + '|' + 0 + '|' + 120 + '|' + 0.0),
 						3.0,
 						easeOutQuad,
-						
-						set_hotspot_visible(true);
-						<!-- 在过渡期间启用用户控制。 -->
+						<!-- set_hotspot_visible(true); -->
 						set(control.usercontrol, all);
-						<!-- 同时过渡 view.fovmax 到 lp_fovmax 的值。 -->
 						tween(view.fovmax, get(lp_fovmax));
 					);
 				);
@@ -703,16 +720,17 @@
 		);
 	</action>
 
+	<!-- 显示隐藏已有的hot -->
   <action name="set_hotspot_visible">
     for(set(i,0),i LT hotspot.count,inc(i),
-       if(%1 == false,
-      if(hotspot[get(i)].visible == true,
-        set(hotspot[get(i)].mark,true);set(hotspot[get(i)].visible,%1);
-        );
-      ,
-      if(hotspot[get(i)].mark == true OR hotspot[get(i)].mark2 == true,
-        set(hotspot[get(i)].visible,%1);
-        );
+      if(%1 == false,
+				if(hotspot[get(i)].visible == true,
+					set(hotspot[get(i)].mark,true);set(hotspot[get(i)].visible,%1);
+				);
+				,
+				if(hotspot[get(i)].mark == true OR hotspot[get(i)].mark2 == true,
+					set(hotspot[get(i)].visible,%1);
+				);
       );
       
     );

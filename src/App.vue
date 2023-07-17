@@ -16,7 +16,9 @@ export default {
 
 <style lang="scss">
 #app {
-  position: relative;
+  box-sizing: border-box;
   padding: 20px;
+  // height: calc(100% - 40px);
+  height: 100%;
 }
 </style>
