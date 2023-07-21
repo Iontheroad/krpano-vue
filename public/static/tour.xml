@@ -3,6 +3,18 @@
 	<!-- 这是引入了krpano默认的一个皮肤模板，而下面的skin_settings对此进行了一些配置，参数非常多 -->
 	<include url="skin/vtourskin.xml" />
 
+	<plugin name="WebVR" keep="true" devices="html5"
+         pluginurl= "%SWFPATH%/plugins/webvr.js"
+         url = ""
+         multireslock.desktop= "true"
+         multireslock.mobile.or.tablet= "false"
+         mobilevr_support = "true"
+         mobilevr_fake_support = "true"
+         onavailable = "removelayer(webvr_enterbutton); skin_arrange_buttons(); webvr_onavailable();"
+         onentervr = "peak_enterVR();skin_showloading(false); webvr_onentervr(); webvr_setup(); skin_reloadscene_webvr();"
+         onexitvr = "webvr_onexitvr(); webvr_setup(); skin_reloadscene_webvr();peak_exitVR();"
+  />
+
 	<!-- 引入loading动画 -->
 	<!-- <include url="skin/loading/loadinganimation.xml" /> -->
 	<!-- 进度数字 -->
@@ -79,6 +91,18 @@
 	<!-- <include url="skin/vtourskin_design_117.xml" /> -->
 	<!-- <include url="skin/vtourskin_design_117round.xml" /> -->
 	<!-- <include url="skin/vtourskin_design_black.xml" /> -->
+
+	<autorotate
+		enabled="false"
+		waittime="1.5"
+		accel="1.0"
+		speed="10.0"
+		horizon="0.0"
+		tofov="off"
+		zoomslowdown="true"
+		interruptionevents="userviewchange|layers|keyboard"
+  />
+
 
 
 	<!-- startup action - load the first scene -->
@@ -157,7 +181,7 @@
 		onloaded="add_hotspot_tooltip();add_hotspot_head();"
 	/>
 
-	<!-- portal动画热点+显示标题 peak_type=3 -->
+	<!-- portal动画跳转热点+显示标题 peak_type=3 -->
 	<style
 		name="peak_hotspotstyle_animation_tooltip"
 		url="skin/hotspot/portal.png"
@@ -165,6 +189,7 @@
 		edge="center"
 		oy="-20"
 		distorted="false"
+		normal="false" 
 		onloaded="do_crop_animation(100,100,15);add_hotspot_tooltip();"
 	/>
 
@@ -173,51 +198,69 @@
 
 	<!-- 当样式加载完成后执行 add_hotspot_tooltip 方法 -->
 	<!-- 添加热点的tooltip -->
-  <action name="add_hotspot_tooltip"  args="hotspotName,mytooltip">
+  <action name="add_hotspot_tooltip">
 		<!-- 使用热点的名称来构造一个新的变量"tooltipname"，它的值是以"peak_hotspot_tooltip_"为前缀加上热点名称。 -->
     txtadd(tooltipname, 'peak_hotspot_tooltip_', get(name));
 		<!-- 调用"addplugin"函数，并将"tooltipname"作为参数，以创建一个新的插件。 -->
     addplugin(get(tooltipname));
 		<!-- 将新插件的父元素设置为热点本身，以将工具提示与热点关联起来。 -->
-		txtadd(plugin[get(tooltipname)].parent, 'hotspot[',get(name),']');
+		txtadd(layer[get(tooltipname)].parent,'hotspot[',get(name),']');
+		<!-- txtadd(layer[get(tooltipname)].parent, 'hotspot[',get(name),']'); -->
 		<!-- 设置新插件的URL属性为"%SWFPATH%/plugins/textfield.swf"，指定了工具提示内容的显示方式为文本字段。 -->
-    set(plugin[get(tooltipname)].url,'%SWFPATH%/plugins/textfield.swf');
+    set(layer[get(tooltipname)].url,'%SWFPATH%/plugins/textfield.swf');
+
+
+    <!-- set(layer[get(tooltipname)].type,'text'); -->
 
 		<!-- 设置新插件的X和Y坐标为0，即将工具提示显示在热点的正上方 -->
-    set(plugin[get(tooltipname)].x,0);
-		set(plugin[get(tooltipname)].y,0);
+    set(layer[get(tooltipname)].x,0);
+		set(layer[get(tooltipname)].y,0);
     <!-- 设置新插件的宽度为200像素 -->
-		<!-- set(plugin[get(tooltipname)].width,200); -->
-		set(plugin[get(tooltipname)].autowidth,true);
+		<!-- set(layer[get(tooltipname)].width,200); -->
+		set(layer[get(tooltipname)].autowidth,true);
 		<!-- 设置新插件的自动高度为true，使其根据内容自动调整高度 -->
-		set(plugin[get(tooltipname)].autoheight,true);
+		set(layer[get(tooltipname)].autoheight,true);
 		<!-- 设置新插件的背景为false，表示没有背景颜色或背景图像 -->
-    set(plugin[get(tooltipname)].background,false);
+    set(layer[get(tooltipname)].background,false);
 		<!-- 设置新插件的边框为false，表示没有边框 -->
-		set(plugin[get(tooltipname)].border,false);
-
+		set(layer[get(tooltipname)].border,false);
 		<!-- 设置新插件的CSS样式，包括文本的对齐方式、颜色、字体和字号等 -->
 		<!-- text == '' OR text === null, -->
 		if(hotspot[get(name)].peak_head,
 			<!-- 热点的head属性存在且不为空时执行 -->
-			set(plugin[get(tooltipname)].css,'text-align:center; color:#FFFFFF; font-family:Arial;  font-size:12px;background-color:rgba(0,0,0,.6);padding:5px 8px 5px 28px;border-radius:17px;  transform:translate(0px,-28px)');
+			set(layer[get(tooltipname)].css,'text-align:center; color:#FFFFFF; font-family:Arial;  font-size:12px;background-color:rgba(0,0,0,.6);padding:5px 8px 5px 28px;border-radius:17px;  transform:translate(0px,-28px)');
 			,
 			<!-- 热点的head属性不存在或者为空时执行 -->
-			set(plugin[get(tooltipname)].css,'text-align:center; color:#FFFFFF; font-family:Arial;  font-size:12px;background-color:rgba(0,0,0,.6);padding:5px 8px;border-radius:8px');
+			set(layer[get(tooltipname)].css,'text-align:center; color:#FFFFFF; font-family:Arial;font-size:12px;background-color:rgba(0,0,0,.6);padding:5px 8px;border-radius:8px;cursor:pointer;');
 			<!-- 设置新插件的对齐方式为顶部（top）-->
-			set(plugin[get(tooltipname)].align,top);
+			set(layer[get(tooltipname)].align,top);
 			<!-- 设置新插件的边缘方式为底部（bottom）-->
-			set(plugin[get(tooltipname)].edge,bottom);
+			set(layer[get(tooltipname)].edge,bottom);
 		);
 
 		<!-- 设置新插件的文本阴影效果，包括阴影的偏移量、范围和角度 -->
-    set(plugin[get(tooltipname)].textshadow,1);
-		set(plugin[get(tooltipname)].textshadowrange,6.0);
-		set(plugin[get(tooltipname)].textshadowangle,90);
+    <!-- set(layer[get(tooltipname)].textshadow,1);
+		set(layer[get(tooltipname)].textshadowrange,6.0);
+		set(layer[get(tooltipname)].textshadowangle,90); -->
 		<!-- 将热点的工具提示内容复制到新插件的HTML属性中 -->
-    copy(plugin[get(tooltipname)].html,hotspot[get(name)].peak_tooltip);
-		<!-- 禁用新插件，使工具提示一开始不可见 -->
-    set(plugin[get(tooltipname)].enabled,false);
+    copy(layer[get(tooltipname)].html,hotspot[get(name)].peak_tooltip);
+    <!-- set(layer[get(tooltipname)].html,"<table>
+			<tbody>
+				<tr>
+					<td>
+						<div>" + hotspot[get(name)].peak_tooltip + "</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>"); -->
+
+
+		set(hotspot[get(tooltipname)].normal,true);
+		set(layer[get(tooltipname)].visible,true);
+		<!-- 与enabled配合使用，都为true只对热点传递动作，（c apture="false"可对子控件传递动作） -->
+    set(layer[get(tooltipname)].capture,false);
+		<!-- 设置热点是否接收鼠标事件 -->
+    set(layer[get(tooltipname)].enabled,true);
   </action>
 
 
@@ -259,8 +302,11 @@
 		txtadd(mycss,'width:32px;height:32px;background-color:#ffffff;border-radius:50%;background-image:url(', get(bgurl) ,');background-size:100% 100%;margin:0px;cursor:default;');
     set(plugin[get(tooltipname)].css, get(mycss));
 
-		<!-- 禁用新插件，使工具提示一开始不可见 -->
-    <!-- set(plugin[get(tooltipname)].enabled,false); -->
+		<!-- 与enabled配合使用，都为true只对热点传递动作，（capture="false"可对子控件传递动作） -->
+		set(layer[get(tooltipname)].capture,false);
+		<!-- 设置热点是否接收鼠标事件 -->
+    set(layer[get(tooltipname)].enabled,true);
+
   </action>
 
 	<!--
@@ -312,44 +358,84 @@
 		js(console.log("接收到了",get(myb)))
 	</action>
 
-	<!-- 切换视图方法 -->
+<!-- <action name="jsaaaa" autorun="onstart" type="Javascript"><![CDATA[
+	let a=123
+  console.log(a)
+]]></action> -->
+	<!-- 点击热点的 -->
+	<action name="call_js_clickhotspot" scope="local"  args="js_hotspot_name">
+		js(clickHotspot_xml(get(js_hotspot_name)));
+	</action>
+
+
+	<!-- 切换场景 -->
 	<action name="peak_click_to_scene" scope="local" args="peak_to_scene, blend, hotspot_name">
+		<!-- peak_to_scene : 跳转的场景名 -->
+		<!-- blend : 跳转动画 -->
+		<!-- hotspot : 点击热点名 -->
+
 		<!-- 判断热点名有没有传递 -->
-		if(get(hotspot_name),
-			looktohotspot(get(hotspot_name),65);,
+		if(get(hotspot_name) != '' OR get(hotspot_name) != null,
+			looktohotspot(get(hotspot_name), 65);
+			,
 		);
 		loadscene(get(peak_to_scene), null, MERGE, get(blend));
+	</action>
+
+	
+	<action name="peak_enterVR">
+		<!-- webvr.enterVR(); -->
+		<!-- delayedcall(1.0,webvr.enterVR()); -->
+		
+		<!-- js(init()); -->
+		
+		<!-- js(console.log(get(webvr.isenabled))); -->
+		<!-- js(console.log(get(scene[get(xml.scene).name]))); -->
+		for(set(i,0), i LT hotspot.count, inc(i),
+				if(hotspot[get(i)].normal == 'false',
+					set(hotspot[get(i)].visible,true);,
+					set(hotspot[get(i)].visible,false);,
+				);
+		);
+	</action>
+
+	<action name="peak_exitVR">
+		for(set(i,0),i LT hotspot.count, inc(i),
+			if(hotspot[get(i)].normal == 'false',
+				set(hotspot[get(i)].visible, true);,
+				set(hotspot[get(i)].visible, false);,
+			);
+		);
 	</action>
 
 
 
 
 	<!-- 创建一个新的热点作为其他热点的text (暂时未用到) -->
-	<action name="add_all_the_time_tooltip_text">
-		<!-- 这一行将变量'tooltipname'设置为字符串'tooltip_'加上变量'name'的值。它用于创建一个唯一的标识符来标识工具提示。 -->
+	<action name="add_hotspot_tooltip_vr">
     txtadd(tooltipname, 'tooltip_', get(name));
-		<!-- 这一行将使用上述唯一标识符创建一个新的热点（hotspot） -->
     addhotspot(get(tooltipname));
+		js(console.log(get(hotspot[get(tooltipname)].parent)));
 		<!-- 这一行设置热点的URL属性，指定了要在热点中加载的SWF文件的路径 -->
     set(hotspot[get(tooltipname)].url,'%SWFPATH%/plugins/textfield.swf');
+    <!-- set(hotspot[get(tooltipname)].type,'text'); -->
+
 		<!-- 这一行设置热点的对齐方式为顶部对齐 -->
     set(hotspot[get(tooltipname)].align,top);
 		<!-- 这一行设置热点的边缘位置为底部 -->
     set(hotspot[get(tooltipname)].edge,bottom);
+    <!-- set(hotspot[get(tooltipname)].renderer,'css3d'); -->
 
 		<!-- 这一行检查设备是否是移动设备，如果是，则设置热点的缩放比例为0.5。 -->
     if(device.mobile,
     	set(hotspot[get(tooltipname)].scale,0.5);
     );
 
-		<!-- 这一行将热点的垂直位置设置为与名为'name'的热点相同 -->
     set(hotspot[get(tooltipname)].atv,get(hotspot[get(name)].atv));
-		<!-- 这一行将热点的水平位置设置为与名为'name'的热点相同 -->
     set(hotspot[get(tooltipname)].ath,get(hotspot[get(name)].ath));
 
 		<!-- 这一行设置热点的宽度自适应 -->
     set(hotspot[get(tooltipname)].autowidth,true);
-		<!-- 这一行设置热点的高度自适应 -->
     set(hotspot[get(tooltipname)].autoheight,true);
 		<!-- 这一行设置热点在垂直方向上居中 -->
     set(hotspot[get(tooltipname)].vcenter,true);
@@ -357,64 +443,74 @@
     set(hotspot[get(tooltipname)].background,true);
 		<!-- 这一行设置热点背景的边缘大小为10 -->
     set(hotspot[get(tooltipname)].bgroundedge,10);
+    set(hotspot[get(tooltipname)].color,"#ffffff");
 		<!-- 这一行设置热点背景的颜色为十六进制值0xccc -->
-    set(hotspot[get(tooltipname)].backgroundcolor,0xccc);
+    set(hotspot[get(tooltipname)].backgroundcolor,"#000000");
 		<!-- 这一行设置热点背景的边缘为圆角，圆角半径为5 -->
-    set(hotspot[get(tooltipname)].roundedge,5);
+    <!-- set(hotspot[get(tooltipname)].roundedge,17); -->
 		<!-- 这一行设置热点背景的透明度为1 -->
-    set(hotspot[get(tooltipname)].backgroundalpha,1);
+    set(hotspot[get(tooltipname)].backgroundalpha,".6");
 		<!-- 这一行设置热点内容与背景之间的边距为5 -->
-    set(hotspot[get(tooltipname)].padding,5);
+    <!-- set(hotspot[get(tooltipname)].padding,4); -->
 		<!-- 这一行设置热点没有边框 -->
-    set(hotspot[get(tooltipname)].border,false);
+    <!-- set(hotspot[get(tooltipname)].border,false); -->
 		<!-- 这一行设置热点没有发光效果 -->
-    set(hotspot[get(tooltipname)].glow,0);
+    <!-- set(hotspot[get(tooltipname)].glow,0); -->
 		<!-- 这一行设置热点的层级顺序为99999，使其位于其他元素之上 -->
-    set(hotspot[get(tooltipname)].zorder,99999);
+    <!-- set(hotspot[get(tooltipname)].zorder,99999); -->
 		<!-- 这一行设置热点发光效果的颜色为白色 -->
-    set(hotspot[get(tooltipname)].glowcolor,0xFFFFFF);
+    <!-- set(hotspot[get(tooltipname)].glowcolor,0xFFFFFF); -->
+    <!-- set(hotspot[get(tooltipname)].distorted,false); -->
+    set(hotspot[get(tooltipname)].normal,false);
+    set(hotspot[get(tooltipname)].visible,true);
+		
+    <!-- set(hotspot[get(tooltipname)].linkedscene,get(linkedscene)); -->
+    set(hotspot[get(tooltipname)].peak_tooltip,get(peak_tooltip));
+
+		set(js_hotspot_name,get(name));
+		set(js_peak_to_scene,get(peak_to_scene));
+		set(js_blend,get(blend));
+
+		<!-- 设置点击事件调用 js里的点击热点的事件 clickHotspot -->
+    set(hotspot[get(tooltipname)].onclick,call_js_clickhotspot(get(js_hotspot_name)));
+
+    <!-- set(hotspot[get(tooltipname)].onclick,peak_click_to_scene(get(js_peak_to_scene), get(js_blend) ,get(js_hotspot_name))); -->
 
 		<!-- 这一行根据设备类型设置热点的CSS样式，包括文本居中对齐、白色字体颜色、28像素的字体大小和黑色的文本阴影 -->
     if(device.mobile,
-    	set(hotspot[get(tooltipname)].css,'text-align:center; color:#FFFFFF;   font-size:28px;    text-shadow: 1px 1px 1px #000;');,
-    	set(hotspot[get(tooltipname)].css,'text-align:center; color:#FFFFFF;   font-size:28px;    text-shadow: 1px 1px 1px #000;');
+    	set(hotspot[get(tooltipname)].css,'text-align:center; color:#FFFFFF;font-size:12px;');,
+    	set(hotspot[get(tooltipname)].css,'text-align:center;margin:0px; color:#FFFFFF;font-size:12px;padding:5px 8px 5px 8px;border-radius:8px;background-color:rgba(0,0,0,.6)');
     );
 		<!-- 这一行设置热点文本没有阴影 -->
-    set(hotspot[get(tooltipname)].textshadow,0);
+    <!-- set(hotspot[get(tooltipname)].textshadow,0); -->
 		<!-- 这一行设置热点文本阴影的模糊范围为6.0 -->
-    set(hotspot[get(tooltipname)].textshadowrange,6.0);
+    <!-- set(hotspot[get(tooltipname)].textshadowrange,6.0); -->
 		<!-- 这一行设置热点文本阴影的角度为90度 -->
-    set(hotspot[get(tooltipname)].textshadowangle,90);
+    <!-- set(hotspot[get(tooltipname)].textshadowangle,90); -->
 
 		<!-- 这一行检查变量'text'是否为空或null。如果是，则将热点的HTML内容设置为与名为'linkscene'的场景标题相同，否则设置为变量'text'的值 -->
-    if(text == '' OR text === null,
+    if(peak_tooltip == '' OR peak_tooltip === null,
 			copy(hotspot[get(tooltipname)].html,scene[get(linkscene)].title),
-			copy(hotspot[get(tooltipname)].html,text)
+			copy(hotspot[get(tooltipname)].html,peak_tooltip)
     );
-		<!-- 这一行禁用热点，使其不可交互 -->
-    set(hotspot[get(tooltipname)].enabled,false);
-
-		<!-- 这一行检查名为'name'的热点的类型是否为1。如果是，根据名为'name'的热点的类型是否为1，以及设备类型是否为移动设备，设置热点的垂直偏移量 -->
-		if(hotspot[get(name)].typeid == '1',
-			if(device.mobile,
-				<!-- 如果热点的类型是1且设备是移动设备，将热点的垂直偏移量设置为100 -->
-				set(hotspot[get(tooltipname)].oy,100);,
-				<!-- 如果热点的类型是1但设备不是移动设备，同样将热点的垂直偏移量设置为100 -->
-				set(hotspot[get(tooltipname)].oy,100);
-			);,
-			if(device.mobile,
-				<!-- 如果热点的类型是1但设备不是移动设备，同样将热点的垂直偏移量设置为100 -->
-				set(hotspot[get(tooltipname)].oy,100);,
-				<!-- 如果热点的类型不是1且设备不是移动设备，同样将热点的垂直偏移量设置为100 -->
-				set(hotspot[get(tooltipname)].oy,100);
-			);
-    );
+		<!-- 与enabled配合使用，都为true只对热点传递动作，（capture="false"可对子控件传递动作） -->
+		set(hotspot[get(tooltipname)].capture,false);
+		<!-- 设置热点是否接收鼠标事件 -->
+    set(hotspot[get(tooltipname)].enabled,true);
+		set(hotspot[get(tooltipname)].oy,-48)
+		
+		<!-- device.mobile -->
   </action>
 
+<!-- 使用js，仅限html5 -->
+<!-- <action name="jsaaaa" autorun="onstart" type="Javascript"><![CDATA[
+	let a=123
+  console.log(a)
+]]></action> -->
 
 	<!-- 音频事件  -->
 	<action name="peak_audio">
-	js(console.log(%1));
+		js(console.log(%1));
 		if(%1,
 			playsound(bgsnd, 'https://krpano.com/panos/xmas/ding_dong_merrily_on_high.mp3|https://krpano.com/panos/xmas/ding_dong_merrily_on_high.ogg', 0);,
 			<!-- 停止 -->
@@ -436,7 +532,7 @@
 		<!-- 初始观看角度 -->
 			<!-- hlookat="268.1" -->
 		<view
-			hlookat="0"
+			hlookat="268.1"
 			vlookat="0.0"
 			fovtype="MFOV"
 			fov="120"
@@ -485,15 +581,46 @@
 
 
 
+			<!-- style="peak_hotspotstyle_animation_tooltip" -->
+
+		<!-- <hotspot
+			name="peak_hotspot_11"
+			onclick="skin_hotspotstyle_click();"
+			scale="0.5"
+			edge="center"
+			ath="-36"
+			atv="11"
+			oy="-20"
+			type="image"
+			normal="false"
+			url="skin/hotspot/portal.png"
+			linkedscene="scene_2"
+			peak_tooltip="我是动态箭头1跳转的热点"
+			text="哈哈哈哈哈"
+			mask="hotspot[name]"
+			onloaded="if(webvr.isenabled,set(visible,true),set(visible,true));otheraction();do_crop_animation(100,100,15);add_hotspot_tooltip_vr(50);"
+	
+		/> -->
 		<!-- <hotspot
 			name="peak_hotspot_1"
-			style="peak_hotspotstyle_animation_tooltip"
+			onclick="skin_hotspotstyle_click();"
+			scale="0.5"
+			edge="center"
 			ath="-136"
 			atv="11"
+			oy="-20"
+			type="image"
+			renderer="css3d"
+			url="skin/hotspot/portal.png"
+			linkedscene="scene_2"
 			peak_tooltip="我是动态箭头1跳转的热点"
-		/>
+			text="哈哈哈哈哈"
+			mask="hotspot[name]"
+			onloaded="if(webvr.isenabled,set(visible,true),set(visible,true));otheraction();do_crop_animation(100,100,15);add_hotspot_tooltip();add_hotspot_tooltip_vr();"
+	
+		/> -->
 
-		<hotspot
+		<!-- <hotspot
 			name="peak_hotspot_2"
 			style="peak_hotspotstyle_animation_tooltip"
 			url="skin/hotspot/circle.png"
@@ -515,7 +642,14 @@
 			onclick="looktohotspot(get(name),100);"
 		/> -->
 
-
+		<!-- <hotspot
+			name="spot1546933175342"
+			ath="0"
+			atv="0"
+			linkedscene="scene_2"
+			style="skin_hotspotstyle"
+			ondown="draghotspot();"
+		/> -->
 
 		<!-- <hotspot
 			name="peak_hotspot_3"
@@ -548,8 +682,9 @@
 			name="area2"
 			ath="-91"
 			atv="25"
-			text="我是一个可以拖拽的的marker"
+			peak_tooltip="我是一个可以拖拽的的marker"
 			url="skin/vtourskin_mapspot.png"
+				onloaded="add_hotspot_tooltip();"
 			ondown="draghotspot();"
 		/> -->
 
@@ -577,7 +712,7 @@
 
 	<scene name="scene_2"
 		id="2"
-		title="神秘大楼" onstart="qweqwe_aa(我是场景2);" thumburl="panos/10034.tiles/thumb.jpg"
+		title="神秘大楼" onstart="" thumburl="panos/10034.tiles/thumb.jpg"
 		lat="34.71205833" lng="113.51638611" heading="294.2" >
 
 		<view hlookat="294.2" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70"

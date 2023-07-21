@@ -66,7 +66,8 @@
 
 
 	<!-- mouse / touch / keyboard(button) control settings - http://krpano.com/docu/xml/#control -->
-	<control mouse="drag"
+	<control
+		mouse="drag"
 		touch="drag"
 		zoomtocursor="false"
 		zoomoutcursor="false"
@@ -314,6 +315,7 @@
 
 
 	<!-- the tooltip textfield -->
+	<!-- 工具提示文本框 -->
 	<layer name="skin_tooltip" keep="true"
 		type="text"
 		parent="STAGE"
@@ -684,14 +686,14 @@
 		copy(lp_limitview, view.limitview);
 
 		<!-- 将view.fovmax设置为170 -->
-		set(view.fovmax, 170);
+		set(view.fovmax, 140);
 		<!-- 将view.limitview设置为lookto -->
 		set(view.limitview, lookto);
 		<!-- set(view.vlookatmin, 90); - 将view.vlookatmin设置为90 -->
 		set(view.vlookatmin, 90);
 		<!-- set(view.vlookatmax, 90); - 将view.vlookatmax设置为90 -->
 		set(view.vlookatmax, 90);
-		js(console.log(get(lp_hlookat),get(lp_vlookat),get(lp_fov)));
+		<!-- js(console.log(get(lp_hlookat),get(lp_vlookat),get(lp_fov))); -->
 
 		<!-- 将视角定位到(lp_hlookat - 180, 90, 150)的位置 -->
 		lookat(calc(lp_hlookat - 180), 90, 150, 1, 0, 0);
@@ -714,6 +716,10 @@
 						<!-- set_hotspot_visible(true); -->
 						set(control.usercontrol, all);
 						tween(view.fovmax, get(lp_fovmax));
+
+
+						<!-- 小行星加载完毕再初始化动态热点 -->
+						js(init());
 					);
 				);
 			);
@@ -725,7 +731,8 @@
     for(set(i,0),i LT hotspot.count,inc(i),
       if(%1 == false,
 				if(hotspot[get(i)].visible == true,
-					set(hotspot[get(i)].mark,true);set(hotspot[get(i)].visible,%1);
+					set(hotspot[get(i)].mark,true);
+					set(hotspot[get(i)].visible,%1);
 				);
 				,
 				if(hotspot[get(i)].mark == true OR hotspot[get(i)].mark2 == true,

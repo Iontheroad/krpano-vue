@@ -1,6 +1,6 @@
 <template>
   <div class="scene-select-box">
-    <ul>
+    <ul v-if="sceneList.length">
       <li
         v-for="scene in sceneList"
         :key="scene.thumburl"
@@ -25,6 +25,11 @@ export default {
       require: true,
     },
 
+    // 场景集合
+    sceneList: {
+      require: true,
+    },
+
     // 当前场景的索引
     currentSceneId: {
       type: [Number, String],
@@ -35,30 +40,24 @@ export default {
     "goToScene", // 跳转视图
   ],
   data() {
-    return {
-      sceneList: [], // 场景集合
-    };
+    return {};
   },
-  mounted() {
-    // 获取场景
-    // this.krpano.get("xml.scene") // 获取当前的场景名
-    // this.krpano.get("scene").getItem(this.krpano.get("xml.scene")) // 获取该场景
-    this.sceneList = this.krpano.get("scene").getArray(); // 所有场景图
-    // console.log(this.sceneList);
-  },
+  mounted() {},
   methods: {
     /**
      * 点击切换场景
      */
     clickToggleScene(scene) {
-      // console.log(scene);
       // 点击的还是当前场景拦截
-      // this.krpano.get("xml.scene") // 获取当前的场景名
       if (this.currentSceneId === scene.id) return;
-      this.$emit("goToScene", {
-        peak_to_scene: scene.name,
-        peak_to_sceneId: scene.id,
-      });
+      this.$emit(
+        "goToScene",
+        {
+          peak_to_scene: scene.name,
+          peak_to_sceneId: scene.id,
+        },
+        1
+      );
     },
   },
 };
@@ -71,11 +70,11 @@ export default {
   left: 50%;
   z-index: 100;
   transform: translateX(-50%);
-  background-color: #fff;
-  padding: 10px;
-  border-radius: 10px;
   ul {
     display: flex;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
     li {
       border-radius: 5px;
       border: solid #ffffff 2px;

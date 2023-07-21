@@ -1,14 +1,14 @@
 <template>
   <div id="app">
-    <HelloWorld />
+    <KrpanoView />
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import KrpanoView from "./components/KrpanoView.vue";
 export default {
   name: "App",
-  components: { HelloWorld },
+  components: { KrpanoView },
 
   methods: {},
 };

@@ -11,14 +11,22 @@
 
     <!-- 场景导航 -->
     <NavList
-      v-if="krpano"
-      :krpano="krpano"
+      :sceneList="sceneList"
       :currentSceneId="currentSceneId"
       @goToScene="goToScene"
     />
+
     <!-- 工具 -->
     <Tools :krpano="krpano" />
-
+    <AddHotspot
+      v-show="isAddHotspotShow"
+      v-model="isAddHotspotShow"
+      :krpano="krpano"
+      :sceneList="sceneList"
+      :currentSceneId="currentSceneId"
+      :clickMouseLocation="clickMouseLocation"
+      @addHotspot="addHotspot"
+    />
     <!-- 场景视图 -->
     <div id="pano" @dblclick="dblclickScene"></div>
   </div>
@@ -26,31 +34,38 @@
 <script>
 import NavList from "./NavList.vue";
 import Tools from "./Tools.vue";
+import AddHotspot from "./AddHotspot.vue";
 export default {
-  name: "HelloWorld",
+  name: "KrpanoView",
   components: {
     NavList,
     Tools,
+    AddHotspot,
   },
   data() {
     return {
       krpano: null,
       currentSceneId: 1, // 当前场景的索引
+      isAddHotspotShow: false,
+      sceneList: [], // 场景集合
       trackMouseId: null,
+      clickMouseLocation: {}, // 点击的位置
+
+      // peak_type :  1=>普通热点(无头像)    2=>普通热点(有头像)   3=>可跳转热点
       goToHotspotList: [
         {
           // 原生属性
-          name: "peak_hotspot_1", // 热点名
-          style: "peak_hotspotstyle_animation_tooltip", // 热点样式
-          ath: "-122", //
-          atv: "-0.21",
           scale: 0.5,
           edge: "center",
           oy: "-20",
           distorted: false,
           url: "static/skin/hotspot/portal.png",
-          // 自定义属性
+
+          //
           id: "1", // 热点id
+          name: "peak_hotspot_1", // 热点名
+          ath: "-122", //球坐标
+          atv: "-0.21",
           peak_type: "3", // 热点类型
           peak_sceneId: "1", // 场景图的id
           peak_to_scene: "scene_2", // 要跳转的场景图名
@@ -60,7 +75,6 @@ export default {
         {
           id: "2",
           name: "peak_hotspot_2",
-          style: "peak_hotspotstyle_animation_tooltip",
           ath: "-155",
           atv: "2",
           scale: 0.5,
@@ -80,7 +94,6 @@ export default {
         {
           // 原生属性
           name: "peak_hotspot_6",
-          style: "peak_hotspotstyle_tooltip_head",
           ath: "-136.81297139120792",
           atv: "-16.590751927541321",
           scale: 0.5,
@@ -97,11 +110,10 @@ export default {
           peak_tooltip: "我曾经在这里扣篮", // 设点提示标签内容
         },
         {
-          id: "7",
+          id: 7,
           name: "peak_hotspot_7",
-          style: "peak_hotspotstyle_tooltip_head",
-          ath: "-54",
-          atv: "19",
+          ath: -54,
+          atv: 19,
           scale: 0.5,
           edge: "center",
           oy: "-20",
@@ -116,7 +128,6 @@ export default {
         {
           id: "8",
           name: "peak_hotspot_8",
-          style: "peak_hotspotstyle_tooltip_head",
           ath: "-73",
           atv: "-11",
           scale: 0.5,
@@ -134,7 +145,6 @@ export default {
     };
   },
   mounted() {
-    // console.log(embedpano, "peak");
     window.embedpano({
       swf: "static/tour.swf", // 有则表示加载 flash 引擎，如果设置 html5:only 则不需要该值
       xml: "static/tour.xml", // 启动时的配置文件
@@ -146,9 +156,9 @@ export default {
       onready: (krpano_interface) => {
         this.krpano = krpano_interface;
 
-        setTimeout(() => {
-          this.init();
-        }, 500);
+        // setTimeout(() => {
+        //   this.init();
+        // }, 500);
       },
       onerror: (error) => {
         console.log(error);
@@ -156,18 +166,28 @@ export default {
       // consolelog: true, // 控制台日志
     });
     window.myGetXML = this.transmitXML;
+    window.init = this.init;
+    window.clickHotspot_xml = (hotspotName) => {
+      this.clickHotspot(
+        this.goToHotspotList.find((item) => item.name == hotspotName)
+      );
+    };
   },
 
   methods: {
     transmitXML(name) {
       console.log(name);
-      // this.krpano.call(`qweqwe_bb(${name})`);
     },
 
     /**
      * 初始化数据
+     *   可以等小行星动画结束在xml里调用
      */
     init() {
+      // this.krpano.get("xml.scene") // 获取当前的场景名
+      // this.krpano.get("scene").getItem(this.krpano.get("xml.scene")) // 获取当前场景
+      this.sceneList = this.krpano.get("scene").getArray(); // 所有场景图
+
       let currentSceneName = this.krpano.get("xml.scene"); // 当前场景图名称
       this.currentSceneId = this.krpano
         .get("scene")
@@ -208,7 +228,7 @@ export default {
      * 点击热点
      */
     clickHotspot(hotspotInfo) {
-      // console.log(hotspotInfo);
+      console.log(hotspotInfo, 123);
       if (hotspotInfo.peak_type == 2) {
         alert("我是普通的热点");
       } else if (hotspotInfo.peak_type == 3) {
@@ -286,7 +306,7 @@ export default {
      * @param {number} obj 信息
      * @param {number} animationType  跳转的动画类型
      */
-    goToScene(obj, animationType = 1, is = true) {
+    goToScene(obj, animationType = 1) {
       let blend = this.getToggleSceneAnimation(animationType);
 
       // this.krpano.call(`loadscene(${obj.name}, null, MERGE, ${blend})`);
@@ -307,6 +327,7 @@ export default {
      * 获取场景热点
      */
     getSceneHotspot() {
+      // this.krpano.call("loop(hotspot.count GT 0, removehotspot(0) );"); // 移除所有热点
       [
         ...this.goToHotspotList.filter(
           (item) => item.peak_sceneId == this.currentSceneId
@@ -321,6 +342,89 @@ export default {
 
     /**
      * 添加热点
+     */
+    _addHotspot(hotspotInfo) {
+      if (this.krpano) {
+        // console.log(hotspotInfo);
+        // 通过调用krpano对象的call()方法，向全景图中添加一个热点
+        this.krpano.call("addhotspot(" + hotspotInfo.name + ")");
+
+        // 设置插件的内容
+        // 热点公共属性
+        this.krpano.set(`hotspot[${hotspotInfo.name}].ath`, hotspotInfo["ath"]);
+        this.krpano.set(`hotspot[${hotspotInfo.name}].atv`, hotspotInfo["atv"]);
+        this.krpano.set(
+          `hotspot[${hotspotInfo.name}].scale`,
+          hotspotInfo["scale"]
+        );
+        this.krpano.set(
+          `hotspot[${hotspotInfo.name}].edge`,
+          hotspotInfo["edge"]
+        );
+        this.krpano.set(`hotspot[${hotspotInfo.name}].oy`, hotspotInfo["oy"]);
+        this.krpano.set(`hotspot[${hotspotInfo.name}].ox`, hotspotInfo["ox"]);
+        this.krpano.set(`hotspot[${hotspotInfo.name}].url`, hotspotInfo["url"]);
+        this.krpano.set(
+          `hotspot[${hotspotInfo.name}].peak_tooltip`,
+          hotspotInfo["peak_tooltip"]
+        );
+        this.krpano.set(
+          `hotspot[${hotspotInfo.name}].text`,
+          hotspotInfo["peak_tooltip"]
+        );
+        // this.krpano.set(`hotspot[${hotspotInfo.name}].normal`, true);
+        this.krpano.set(`hotspot[${hotspotInfo.name}].visible`, true);
+
+        // 不同热点类型添加不同的属性
+        switch (hotspotInfo.peak_type) {
+          case "2":
+            this.krpano.set(
+              `hotspot[${hotspotInfo.name}].peak_head`,
+              hotspotInfo["peak_head"]
+            ); // 头像
+
+            this.krpano.set(
+              `hotspot[${hotspotInfo.name}].onloaded`,
+              "add_hotspot_tooltip();add_hotspot_head();add_hotspot_tooltip_vr();"
+            );
+            break;
+
+          case "3":
+            // 可跳转的
+            this.krpano.set(
+              `hotspot[${hotspotInfo.name}].linkedscene`,
+              hotspotInfo.peak_to_scene
+            );
+            this.krpano.set(
+              `hotspot[${hotspotInfo.name}].onloaded`,
+              "do_crop_animation(100,100,15);add_hotspot_tooltip();add_hotspot_tooltip_vr()"
+            );
+            break;
+          default:
+            break;
+        }
+
+        // 如果当前设备支持HTML5，则将一个匿名函数分配给热点的onclick事件，该函数会弹出一个带有热点名称的警告框
+        if (this.krpano.get("device.html5")) {
+          // 对于HTML5，可以将JS函数直接分配给krpano事件
+          this.krpano.set(
+            "hotspot[" + hotspotInfo.name + "].onclick",
+            this.clickHotspot.bind(this, hotspotInfo)
+          );
+        } else {
+          // 如果当前设备不支持HTML5，则使用js()函数调用Flash中的JS函数，该函数会弹出一个带有热点名称的警告框。
+          // 对于Flash，需要使用js（）操作从Flash调用js（此代码适用于Flash和HTML5）
+          this.krpano.set(
+            "hotspot[" + hotspotInfo.name + "].onclick",
+            "js( alert(calc('hotspot \"' + name + '\" clicked')) );"
+          );
+        }
+      }
+    },
+
+    /**
+     * 由于插件文本的热点在VR模式下不显示，所以文本用一个新热点(hotspot)去构建而不是有插件(plugin)
+     * 添加热点，跳转的热点文本，再创建一个热点代替
      */
     addHotspot(hotspotInfo) {
       if (this.krpano) {
@@ -347,6 +451,12 @@ export default {
           `hotspot[${hotspotInfo.name}].peak_tooltip`,
           hotspotInfo["peak_tooltip"]
         );
+        this.krpano.set(
+          `hotspot[${hotspotInfo.name}].peak_type`,
+          hotspotInfo["peak_type"]
+        );
+        this.krpano.set(`hotspot[${hotspotInfo.name}].normal`, false);
+        this.krpano.set(`hotspot[${hotspotInfo.name}].visible`, true);
 
         // 不同热点类型添加不同的属性
         switch (hotspotInfo.peak_type) {
@@ -354,7 +464,8 @@ export default {
             this.krpano.set(
               `hotspot[${hotspotInfo.name}].peak_head`,
               hotspotInfo["peak_head"]
-            );
+            ); // 头像
+
             this.krpano.set(
               `hotspot[${hotspotInfo.name}].onloaded`,
               "add_hotspot_tooltip();add_hotspot_head();"
@@ -362,15 +473,21 @@ export default {
             break;
 
           case "3":
+            let blend = this.getToggleSceneAnimation(1);
             // 可跳转的
-            // this.krpano.set(`hotspot[${hotspot.name}].style`, hotspot["style"]);
             this.krpano.set(
-              `hotspot[${hotspotInfo.name}].linkedscene`,
+              `hotspot[${hotspotInfo.name}].peak_to_scene`,
               hotspotInfo.peak_to_scene
             );
+            this.krpano.set(`hotspot[${hotspotInfo.name}].blend`, blend);
+            this.krpano.set(
+              `hotspot[${hotspotInfo.name}].peak_to_sceneId`,
+              hotspotInfo.peak_to_sceneId
+            );
+            console.log(hotspotInfo);
             this.krpano.set(
               `hotspot[${hotspotInfo.name}].onloaded`,
-              "do_crop_animation(100,100,15);add_hotspot_tooltip();"
+              `do_crop_animation(100,100,15);add_hotspot_tooltip_vr(${blend});`
             );
             break;
           default:
@@ -394,7 +511,6 @@ export default {
         }
       }
     },
-
     /**
      * 获取当前视角
      */
@@ -413,7 +529,9 @@ export default {
      * 双击视图
      */
     dblclickScene() {
-      console.log(this.getMouseLocation());
+      // console.log(this.getMouseLocation());
+      this.clickMouseLocation = this.getMouseLocation();
+      this.isAddHotspotShow = true;
     },
 
     /**
