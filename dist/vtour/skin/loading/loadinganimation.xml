@@ -1,0 +1,48 @@
+﻿<!--
+	loading animation with an image-strip / sprite-sheet
+	- made as 'flying' hotspots
+	- works also in VR mode
+	- just include once this xml
+-->
+<krpano>
+
+	<!-- loading animation events -->
+	<events name="loadinganimation" keep="true"
+	        onxmlcomplete="loadinganimation_startloading();"
+	        onloadcomplete="delayedcall(0.25, loadinganimation_stoploading() );"
+	        />
+
+	<!-- loading animation graphic -->
+	<hotspot name="loadinganimation"
+	         keep="true"
+	         visible="false"
+	         flying="1.0"
+	         url="loadinganimation.png"
+	         crop="0|0|64|64"
+	         frame="0" frames="8"
+	         />
+
+	<!-- loading percent actions -->
+	<action name="loadinganimation_startloading">
+		set(loadinganimation_isloading, true);
+		set(hotspot[loadinganimation].visible, true);
+		loadinganimation_animate();
+	</action>
+
+	<action name="loadinganimation_stoploading">
+		set(loadinganimation_isloading, false);
+		set(hotspot[loadinganimation].visible, false);
+	</action>
+
+	<action name="loadinganimation_animate">
+		mul(xcrop, hotspot[loadinganimation].frame, 64);
+		txtadd(hotspot[loadinganimation].crop, get(xcrop), '|0|64|64');
+
+		if(loadinganimation_isloading,
+			inc(hotspot[loadinganimation].frame);
+			if(hotspot[loadinganimation].frame GE hotspot[loadinganimation].frames, set(hotspot[loadinganimation].frame,0));
+			delayedcall(0.05, loadinganimation_animate() );
+		  );
+	</action>
+
+</krpano>
