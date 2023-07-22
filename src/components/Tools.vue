@@ -11,7 +11,7 @@
       class="btn audio-btn audio-stop"
       @click="clickAudio(true)"
     ></div>
-    <div class="btn" @click="clickVR(true)">VR</div>
+    <div class="btn" @click="clickVR">VR</div>
   </div>
 </template>
 
@@ -35,8 +35,8 @@ export default {
       this.krpano.call(`peak_audio(${isAudioPlay})`);
     },
     clickVR() {
-      this.krpano.call("webvr.enterVR");
-      // this.krpano.call("peak_enterVR");
+      // this.krpano.call("webvr.enterVR();");
+      this.krpano.call("peak_enterVR");
     },
   },
 };
@@ -56,8 +56,8 @@ export default {
   .btn {
     width: 30px;
     height: 30px;
-    background-color: rgb(255, 255, 255);
-    border: 5px solid rgb(255, 255, 255);
+    background-color: rgb(215, 215, 215);
+    border: 5px solid rgb(215, 215, 215);
     border-radius: 10px;
     margin: 5px;
     text-align: center;
@@ -65,7 +65,7 @@ export default {
     cursor: pointer;
   }
   .audio-btn {
-    background: rgb(255, 255, 255) url("../assets/soundonoff.png") no-repeat;
+    background: rgb(216, 216, 216) url("../assets/soundonoff.png") no-repeat;
     background-size: 100%;
     &.audio-stop {
       background-position: 5px -30px;

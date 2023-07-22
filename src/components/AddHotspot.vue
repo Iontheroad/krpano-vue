@@ -14,7 +14,7 @@
             v-for="scene in sceneList"
             :key="scene.thumburl"
             :value="scene.id"
-            :disabled="currentSceneId == scene.id"
+            :disabled="currentSceneName == scene.id"
           >
             {{ scene.title }}
           </option>
@@ -47,7 +47,7 @@ export default {
     sceneList: {
       required: true,
     },
-    currentSceneId: {
+    currentSceneName: {
       required: true,
     },
     clickMouseLocation: {
@@ -104,9 +104,9 @@ export default {
       this.$emit("update:isAddHotspotShow", false);
     },
     clickConfirm() {
-      let currentSceneName = this.krpano.get("xml.scene"); // 当前场景名
-      let currentScene = this.krpano.get("scene").getItem(currentSceneName); // 当前场景
-      let currentSceneId = currentScene.id; // 当前场景id
+      // let currentSceneName = this.krpano.get("xml.scene"); // 当前场景名
+      // let currentScene = this.krpano.get("scene").getItem(currentSceneName); // 当前场景
+
       let { ath, atv } = this.clickMouseLocation; // 鼠标点击球形坐标
       let id = Date.now(); // 热点id
       let name = `peak_hotspot_${id}`; // 热点名称
@@ -121,7 +121,7 @@ export default {
           id,
           name,
           peak_type: this.selectValue,
-          peak_sceneId: currentSceneId,
+          peak_sceneName: this.currentSceneName,
           peak_tooltip: this.tooltip,
         });
       } else if (this.selectValue == 3) {
@@ -132,9 +132,9 @@ export default {
           id,
           name,
           peak_type: this.selectValue,
-          peak_sceneId: currentSceneId,
+          peak_sceneName: this.currentSceneName,
           peak_tooltip: this.tooltip,
-          peak_to_sceneId: this.selectSceneId,
+          peak_to_sceneName: this.selectSceneId,
           peak_to_scene: this.sceneList.find(
             (item) => item.id == this.selectSceneId
           ),
@@ -148,7 +148,7 @@ export default {
         id,
         name,
         peak_type: this.selectValue,
-        peak_sceneId: currentSceneId,
+        peak_sceneId: currentSceneName,
         peak_tooltip: this.tooltip,
       });
       this.$emit("update:isAddHotspotShow", false);

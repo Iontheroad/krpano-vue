@@ -5,7 +5,7 @@
         v-for="scene in sceneList"
         :key="scene.thumburl"
         :class="{
-          'hotspot-detail-scene-selected': currentSceneId == scene.id,
+          'hotspot-detail-scene-selected': currentSceneName == scene.name,
         }"
       >
         <img :src="scene.thumburl" @click="clickToggleScene(scene)" />
@@ -20,6 +20,10 @@
 <script>
 export default {
   name: "NavList",
+  model: {
+    prop: "currentSceneName",
+    event: "update:currentSceneName",
+  },
   props: {
     krpano: {
       require: true,
@@ -31,30 +35,27 @@ export default {
     },
 
     // 当前场景的索引
-    currentSceneId: {
+    currentSceneName: {
       type: [Number, String],
       require: true,
     },
   },
   emits: [
     "goToScene", // 跳转视图
+    "update:currentSceneName",
   ],
-  data() {
-    return {};
-  },
-  mounted() {},
   methods: {
     /**
      * 点击切换场景
      */
     clickToggleScene(scene) {
       // 点击的还是当前场景拦截
-      if (this.currentSceneId === scene.id) return;
+      if (this.currentSceneName === scene.name) return;
+      this.$emit("update:currentSceneName", scene.name);
       this.$emit(
         "goToScene",
         {
-          peak_to_scene: scene.name,
-          peak_to_sceneId: scene.id,
+          peak_to_sceneName: scene.name,
         },
         1
       );
@@ -66,7 +67,7 @@ export default {
 <style lang="scss" scoped>
 .scene-select-box {
   position: absolute;
-  bottom: 10px;
+  bottom: 100px;
   left: 50%;
   z-index: 100;
   transform: translateX(-50%);

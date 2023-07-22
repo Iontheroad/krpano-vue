@@ -12,7 +12,7 @@
     <!-- 场景导航 -->
     <NavList
       :sceneList="sceneList"
-      :currentSceneId="currentSceneId"
+      v-model="currentSceneName"
       @goToScene="goToScene"
     />
 
@@ -23,7 +23,7 @@
       v-model="isAddHotspotShow"
       :krpano="krpano"
       :sceneList="sceneList"
-      :currentSceneId="currentSceneId"
+      :currentSceneName="currentSceneName"
       :clickMouseLocation="clickMouseLocation"
       @addHotspot="addHotspot"
     />
@@ -45,7 +45,7 @@ export default {
   data() {
     return {
       krpano: null,
-      currentSceneId: 1, // 当前场景的索引
+      currentSceneName: "", // 当前场景的索引
       isAddHotspotShow: false,
       sceneList: [], // 场景集合
       trackMouseId: null,
@@ -59,7 +59,7 @@ export default {
           edge: "center",
           oy: "-20",
           distorted: false,
-          url: "static/skin/hotspot/portal.png",
+          url: "vtour/skin/hotspot/portal.png",
 
           //
           id: "1", // 热点id
@@ -67,10 +67,9 @@ export default {
           ath: "-122", //球坐标
           atv: "-0.21",
           peak_type: "3", // 热点类型
-          peak_sceneId: "1", // 场景图的id
-          peak_to_scene: "scene_2", // 要跳转的场景图名
-          peak_to_sceneId: "2", // 要跳转的场景图id
-          peak_tooltip: "前往神秘大楼", // 设点提示标签内容
+          peak_sceneName: "scene_10006", // 所在的场景图名
+          peak_to_sceneName: "scene_10007", // 要跳转的场景图名
+          peak_tooltip: "前往10007", // 设点提示标签内容
         },
         {
           id: "2",
@@ -81,13 +80,12 @@ export default {
           edge: "center",
           oy: "-20",
           distorted: false,
-          url: "static/skin/hotspot/portal.png",
+          url: "vtour/skin/hotspot/portal.png",
 
           peak_type: "3",
-          peak_sceneId: "2", // 场景图的id
-          peak_to_scene: "scene_1",
-          peak_to_sceneId: "1", // 要跳转的场景图id
-          peak_tooltip: "前往篮球场",
+          peak_sceneName: "scene_10007",
+          peak_to_sceneName: "scene_10006",
+          peak_tooltip: "前往10006",
         },
       ], // 跳转热点
       markHotspotList: [
@@ -100,11 +98,11 @@ export default {
           edge: "center",
           oy: "-20",
           ox: "5",
-          url: "static/skin/hotspot/line.png",
+          url: "vtour/skin/hotspot/line.png",
           // 自定义属性
           id: "6", // 热点id
           peak_type: "2", // 热点类型
-          peak_sceneId: "1", // 所在场景图的id
+          peak_sceneName: "scene_10006", // 所在场景图的id
           peak_head:
             "https://resource.v123.cn/v/Data/upload/live/auth/656/image/5c38805344125.jpg", // 提示标签的头像
           peak_tooltip: "我曾经在这里扣篮", // 设点提示标签内容
@@ -117,10 +115,10 @@ export default {
           scale: 0.5,
           edge: "center",
           oy: "-20",
-          url: "static/skin/hotspot/line.png",
+          url: "vtour/skin/hotspot/line.png",
 
           peak_type: "2",
-          peak_sceneId: "1",
+          peak_sceneName: "scene_10006",
           peak_head:
             "https://resource.v123.cn/v/Data/upload/live/auth/656/image/5c38805344125.jpg",
           peak_tooltip: "挥洒汗水的地方",
@@ -133,10 +131,10 @@ export default {
           scale: 0.5,
           edge: "center",
           oy: "-20",
-          url: "static/skin/hotspot/line.png",
+          url: "vtour/skin/hotspot/line.png",
 
           peak_type: "2",
-          peak_sceneId: "2",
+          peak_sceneName: "scene_10007",
           peak_head:
             "https://resource.v123.cn/v/Data/upload/live/auth/656/image/5c38805344125.jpg",
           peak_tooltip: "不知名的神秘大楼",
@@ -146,13 +144,14 @@ export default {
   },
   mounted() {
     window.embedpano({
-      swf: "static/tour.swf", // 有则表示加载 flash 引擎，如果设置 html5:only 则不需要该值
-      xml: "static/tour.xml", // 启动时的配置文件
+      // swf: "vtour/tour.swf", // 有则表示加载 flash 引擎，如果设置 html5:only 则不需要该值
+      xml: "vtour/tour.xml", // 启动时的配置文件
       target: "pano", // 要渲染到的目标容器 ID
       html5: "auto", // 如果有需要用到 flash ，可设置为 auto
       //id: "krpanoSWFObject", // 默认的 krpano 对象，每一个 viewer 对应唯一 id ，与 JS 交互时要用到
       mobilescale: 1.0, // 移动设备缩放，1 表示不缩放，默认 0.5
       passQueryParameters: true, // 是否接受 URL 传参，例如：tour.html?html5=only&startscene=scene2
+      // passQueryParameters: "startscene,startlookat",
       onready: (krpano_interface) => {
         this.krpano = krpano_interface;
 
@@ -184,17 +183,15 @@ export default {
      *   可以等小行星动画结束在xml里调用
      */
     init() {
-      // this.krpano.get("xml.scene") // 获取当前的场景名
-      // this.krpano.get("scene").getItem(this.krpano.get("xml.scene")) // 获取当前场景
       this.sceneList = this.krpano.get("scene").getArray(); // 所有场景图
 
-      let currentSceneName = this.krpano.get("xml.scene"); // 当前场景图名称
-      this.currentSceneId = this.krpano
-        .get("scene")
-        .getItem(currentSceneName).id;
+      this.currentSceneName = this.krpano.get("xml.scene"); // 获取当前的场景名
+      // this.currentSceneName = this.krpano
+      //   .get("scene")
+      //   .getItem(currentSceneName).name;
 
       // 获取该场景图下的热点
-      this.getSceneHotspot(this.currentSceneId);
+      this.getSceneHotspot(this.currentSceneName);
     },
 
     /**
@@ -236,8 +233,7 @@ export default {
         // console.log(hotspotInfo);
         this.goToScene({
           hotspotName: hotspotInfo.name,
-          peak_to_scene: hotspotInfo.peak_to_scene,
-          peak_to_sceneId: hotspotInfo.peak_to_sceneId,
+          peak_to_sceneName: hotspotInfo.peak_to_sceneName,
         });
       }
     },
@@ -303,7 +299,8 @@ export default {
 
     /**
      * 场景结合动画跳转
-     * @param {number} obj 信息
+     * @param {object} obj 信息
+     * @param {string} obj.peak_to_sceneName 跳转的场景名
      * @param {number} animationType  跳转的动画类型
      */
     goToScene(obj, animationType = 1) {
@@ -312,12 +309,11 @@ export default {
       // this.krpano.call(`loadscene(${obj.name}, null, MERGE, ${blend})`);
 
       this.krpano.call(
-        `peak_click_to_scene(${obj.peak_to_scene},${blend},${obj.hotspotName});`
+        `peak_click_to_scene(${obj.peak_to_sceneName},${blend},${obj.hotspotName});`
       );
-      // let scene = this.krpano.get("scene").getItem(obj.peak_to_scene); // 获取当前场景的信息
-      this.currentSceneId = obj.peak_to_sceneId;
 
       setTimeout(() => {
+        this.currentSceneName = obj.peak_to_sceneName;
         // 获取场景的热点
         this.getSceneHotspot();
       }, 1000);
@@ -330,10 +326,10 @@ export default {
       // this.krpano.call("loop(hotspot.count GT 0, removehotspot(0) );"); // 移除所有热点
       [
         ...this.goToHotspotList.filter(
-          (item) => item.peak_sceneId == this.currentSceneId
+          (item) => item.peak_sceneName == this.currentSceneName
         ),
         ...this.markHotspotList.filter(
-          (item) => item.peak_sceneId == this.currentSceneId
+          (item) => item.peak_sceneName == this.currentSceneName
         ),
       ].forEach((item) => {
         this.addHotspot(item);
@@ -341,7 +337,8 @@ export default {
     },
 
     /**
-     * 添加热点
+     * 获取当前视角
+     *    用插件构建的tooltip文本
      */
     _addHotspot(hotspotInfo) {
       if (this.krpano) {
@@ -393,7 +390,7 @@ export default {
             // 可跳转的
             this.krpano.set(
               `hotspot[${hotspotInfo.name}].linkedscene`,
-              hotspotInfo.peak_to_scene
+              hotspotInfo.peak_to_sceneName
             );
             this.krpano.set(
               `hotspot[${hotspotInfo.name}].onloaded`,
@@ -423,12 +420,25 @@ export default {
     },
 
     /**
-     * 由于插件文本的热点在VR模式下不显示，所以文本用一个新热点(hotspot)去构建而不是有插件(plugin)
-     * 添加热点，跳转的热点文本，再创建一个热点代替
+     * 在全景图中添加热点。
+     *   由于插件文本的热点在VR模式下不显示，所以tooltip文本用一个新热点(hotspot)去构建而不是用插件构建(plugin)
+     * @param {object} hotspotInfo - 热点信息
+     * @param {string} hotspotInfo.name - 热点的名称。
+     * @param {number} hotspotInfo.ath - 热点的球形水平位置
+     * @param {number} hotspotInfo.atv - 热点的垂直位置
+     * @param {number} hotspotInfo.scale - 缩放比例
+     * @param {number} hotspotInfo.edge - The edge of the hotspot.
+     * @param {number} hotspotInfo.oy - 热点的y坐标
+     * @param {number} hotspotInfo.ox - 热点的x坐标
+     * @param {string} hotspotInfo.url - 热点的图片
+     * @param {string} hotspotInfo.peak_tooltip - 热点的工具提示
+     * @param {string} hotspotInfo.peak_type - 热点类型 (2:标记头像热点;3:跳转热点)
+     * @param {string} hotspotInfo.peak_head - 热点的头部(只有标记热点才有)
+     * @param {string} hotspotInfo.peak_to_sceneName - 要跳转到的场景名称
+     * @return {void}
      */
     addHotspot(hotspotInfo) {
       if (this.krpano) {
-        // console.log(hotspotInfo);
         // 通过调用krpano对象的call()方法，向全景图中添加一个热点
         this.krpano.call("addhotspot(" + hotspotInfo.name + ")");
 
@@ -476,15 +486,11 @@ export default {
             let blend = this.getToggleSceneAnimation(1);
             // 可跳转的
             this.krpano.set(
-              `hotspot[${hotspotInfo.name}].peak_to_scene`,
-              hotspotInfo.peak_to_scene
+              `hotspot[${hotspotInfo.name}].peak_to_sceneName`,
+              hotspotInfo.peak_to_sceneName
             );
             this.krpano.set(`hotspot[${hotspotInfo.name}].blend`, blend);
-            this.krpano.set(
-              `hotspot[${hotspotInfo.name}].peak_to_sceneId`,
-              hotspotInfo.peak_to_sceneId
-            );
-            console.log(hotspotInfo);
+
             this.krpano.set(
               `hotspot[${hotspotInfo.name}].onloaded`,
               `do_crop_animation(100,100,15);add_hotspot_tooltip_vr(${blend});`
@@ -511,9 +517,7 @@ export default {
         }
       }
     },
-    /**
-     * 获取当前视角
-     */
+
     getCurrentView() {
       if (this.krpano) {
         //  获取当前视角的水平和垂直角度，并将它们分别赋给变量"h"和"v"。
