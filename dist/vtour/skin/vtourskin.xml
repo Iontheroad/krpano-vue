@@ -97,11 +97,11 @@
 
 
 	<!-- VR support - https://krpano.com/plugins/webvr/ -->
-	<include url="/vtour/plugins/webvr.xml" devices="html5" />
+	<include url="../plugins/webvr.xml" devices="html5" />
 	
 	<!-- overwrite some settings from the webvr.xml for the skin integration -->
 	<plugin name="webvr" keep="true" devices="html5.and.webgl"
-	        url="calc:skin_settings.webvr == true ? '/vtour/plugins/webvr.js' : null"
+	        url="calc:skin_settings.webvr == true ? ''../plugins/webvr.js'' : null"
 	        onavailable="skin_webvr_onavailable();"
 	        onentervr="skin_showloading(false); webvr_onentervr(); skin_webvr_setup(); skin_reloadscene_webvr();"
 	        onexitvr="webvr_onexitvr(); skin_webvr_setup(); skin_reloadscene_webvr();"
@@ -331,7 +331,7 @@
 						<layer name="skin_thumbs_scrollleft"  style="skin_base|skin_glow" crop="0|64|64|64"  align="lefttop"  edge="left"  x="5" y="50" scale="0.5" zorder="2" alpha="1.0" ondown="asyncloop(pressed, layer[skin_thumbs].scrollby(+2,0));" visible="false" />
 						<layer name="skin_thumbs_scrollright" style="skin_base|skin_glow" crop="64|64|64|64" align="righttop" edge="right" x="5" y="50" scale="0.5" zorder="2" alpha="1.0" ondown="asyncloop(pressed, layer[skin_thumbs].scrollby(-2,0));" visible="false" />
 						<layer name="skin_thumbs_scrollindicator" type="container" bgcolor="0xFFFFFF" bgalpha="0.25" align="lefttop" width="0" y="100" height="2" visible="false" enabled="false" />
-						<layer name="skin_thumbs" state="closed" url.flash="/vtour/plugins/scrollarea.swf" url.html5="/vtour/plugins/scrollarea.js" direction="h" align="top" width="100%" height="100" zorder="1" onloaded="skin_updatescroll();" onscroll="skin_updatethumbscroll();" />
+						<layer name="skin_thumbs" state="closed" url.flash="../plugins/scrollarea.swf" url.html5="../plugins/scrollarea.js" direction="h" align="top" width="100%" height="100" zorder="1" onloaded="skin_updatescroll();" onscroll="skin_updatethumbscroll();" />
 					</layer>
 					<layer name="skin_map_container" type="container" align="leftop" width="100%" height="100%" bgroundedge="get:skin_settings.design_bgroundedge" maskchildren="true">
 						<layer name="skin_map" state="closed" url="" visible="false" align="lefttop" width="100%" height="50%" x="0" y="0" zorder="1" lat="0" lng="0" zoom="10" bgalpha="0" maptype="satellite" onmapready="skin_addmapspots();">
@@ -389,7 +389,7 @@
 
 
 	<!-- gyro plugin -->
-	<plugin name="skin_gyro" keep="true" url="" html5_url="/vtour/plugins/gyro2.js" softstart="1.0" desktopsupport="false" enabled="false" onavailable="skin_arrange_buttons();" devices="html5" />
+	<plugin name="skin_gyro" keep="true" url="" html5_url="../plugins/gyro2.js" softstart="1.0" desktopsupport="false" enabled="false" onavailable="skin_arrange_buttons();" devices="html5" />
 
 
 	<!-- skin events -->
@@ -464,14 +464,14 @@
 		if (!layer[skin_map].url,
 			if(device.flash,
 				copy(layer[skin_map].key, skin_settings.maps_bing_api_key);
-				set(layer[skin_map].url, '/vtour/plugins/bingmaps.swf');
+				set(layer[skin_map].url, '../plugins/bingmaps.swf');
 			  ,
 				if(skin_settings.maps_type == 'bing',
 					copy(layer[skin_map].key, skin_settings.maps_bing_api_key);
-					set(layer[skin_map].url, '/vtour/plugins/bingmaps.js');
+					set(layer[skin_map].url, '../plugins/bingmaps.js');
 				  ,
 				 	copy(layer[skin_map].key, skin_settings.maps_google_api_key);
-					set(layer[skin_map].url, '/vtour/plugins/googlemaps.js');
+					set(layer[skin_map].url, '../plugins/googlemaps.js');
 				);
 			);
 		);

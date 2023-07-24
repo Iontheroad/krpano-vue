@@ -346,8 +346,8 @@
 	<!-- 加载声音插件 -->
 	<plugin
 		name="soundinterface"
-		url.flash="/vtour/plugins/soundinterface.swf"
-		url.html5="/vtour/plugins/soundinterface.js"
+		url.flash="../plugins/soundinterface.swf"
+		url.html5="../plugins/soundinterface.js"
 		rootpath=""
 		preload="true"
 		keep="true"
