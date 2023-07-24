@@ -587,7 +587,6 @@
 	<action name="skin_setup_littleplanetintro" scope="local">
 		skin_hideskin(instant);
 		set(global.lpinfo, scene=get(xml.scene), hlookat=get(view.hlookat), vlookat=get(view.vlookat), fov=get(view.fov), fovmax=get(view.fovmax), limitview=get(view.limitview) );
-		js(console.log(get(xml.scene),get(view.hlookat),get(view.vlookat),get(view.fov),get(view.fovmax),get(view.limitview),'哈哈哈哈'));
 		set(view, fovmax=170, limitview=lookto, vlookatmin=90, vlookatmax=90);
 		lookat(calc(global.lpinfo.hlookat - 180), 90, 150, 1, 0, 0);
 		<!-- 将视角定位到指定的水平和垂直视角位置，水平视角为 global.lpinfo.hlookat - 180 度，垂直视角为 90 度，距离为 150，第四个参数为 1，后面的三个参数为旋转的参考轴，这里分别是X轴、Y轴和Z轴 -->

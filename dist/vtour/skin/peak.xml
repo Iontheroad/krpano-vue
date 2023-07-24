@@ -306,6 +306,10 @@
 	
 	<action name="peak_enterVR">
 		webvr.enterVR();
+		<!-- clearinterval(stereotoggle); 
+		set(display.stereo, false); 
+		set(display.stereoscale,1.0); 
+		if(webvr, webvr.enterVR(), error('WebVR not available')); -->
 		<!-- delayedcall(1.0,webvr.enterVR()); -->
 		<!-- js(console.log(get(scene[get(xml.scene).name]))); -->
 		<!-- for(set(i,0), i LT hotspot.count, inc(i),
