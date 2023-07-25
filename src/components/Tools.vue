@@ -35,8 +35,8 @@ export default {
       this.krpano.call(`peak_audio(${isAudioPlay})`);
     },
     clickVR() {
-      this.krpano.call("webvr.enterVR();");
-      // this.krpano.call("peak_enterVR();");
+      // this.krpano.call("webvr.enterVR();");
+      this.krpano.call("peak_enterVR();");
     },
   },
 };
