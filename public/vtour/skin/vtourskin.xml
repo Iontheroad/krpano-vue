@@ -101,7 +101,7 @@
 	
 	<!-- overwrite some settings from the webvr.xml for the skin integration -->
 	<plugin name="webvr" keep="true" devices="html5.and.webgl"
-	        url="calc:skin_settings.webvr == true ? ''../plugins/webvr.js'' : null"
+	        url="calc:skin_settings.webvr == true ? '/vtour/plugins/webvr.js' : null"
 	        onavailable="skin_webvr_onavailable();"
 	        onentervr="skin_showloading(false); webvr_onentervr(); skin_webvr_setup(); skin_reloadscene_webvr();"
 	        onexitvr="webvr_onexitvr(); skin_webvr_setup(); skin_reloadscene_webvr();"
